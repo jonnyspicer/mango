@@ -1,0 +1,2 @@
+- Install viper, have default URLs, and others read in from config
+- Try to make unmarshalling generic
