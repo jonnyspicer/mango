@@ -3,14 +3,14 @@ package mango
 type outcomeType string
 
 const (
-	Binary outcomeType = "BINARY"
-	FreeResponse outcomeType = "FREE_REPONSE"
+	Binary         outcomeType = "BINARY"
+	FreeResponse   outcomeType = "FREE_REPONSE"
 	MultipleChoice outcomeType = "MULTIPLE_CHOICE"
-	Numeric outcomeType = "NUMERIC"
-	PseudoNumeric outcomeType = "PSEUDO-NUMERIC"
+	Numeric        outcomeType = "NUMERIC"
+	PseudoNumeric  outcomeType = "PSEUDO-NUMERIC"
 )
 
-type Market interface {}
+type Market interface{}
 
 type LiteMarket struct {
 	Id               string        `json:"id"`
@@ -23,7 +23,7 @@ type LiteMarket struct {
 	Question         string        `json:"question"`
 	Tags             []interface{} `json:"tags"`
 	Url              string        `json:"url"`
-	Pool             struct { // TODO: fix this
+	Pool             struct {      // TODO: fix this
 		NO      float64 `json:"NO,omitempty"`
 		YES     float64 `json:"YES,omitempty"`
 		Field3  float64 `json:"0,omitempty"`
@@ -47,21 +47,21 @@ type LiteMarket struct {
 		Field21 int     `json:"18,omitempty"`
 		Field22 int     `json:"19,omitempty"`
 	} `json:"pool"`
-	Probability           float64 `json:"probability,omitempty"`
-	P                     float64 `json:"p,omitempty"`
-	TotalLiquidity        int64     `json:"totalLiquidity,omitempty"`
-	OutcomeType           outcomeType  `json:"outcomeType"`
-	Mechanism             string  `json:"mechanism"`
-	Volume                float64 `json:"volume"`
-	Volume24Hours         float64 `json:"volume24Hours"`
-	IsResolved            bool    `json:"isResolved"`
-	LastUpdatedTime       int64   `json:"lastUpdatedTime,omitempty"`
+	Probability           float64     `json:"probability,omitempty"`
+	P                     float64     `json:"p,omitempty"`
+	TotalLiquidity        int64       `json:"totalLiquidity,omitempty"`
+	OutcomeType           outcomeType `json:"outcomeType"`
+	Mechanism             string      `json:"mechanism"`
+	Volume                float64     `json:"volume"`
+	Volume24Hours         float64     `json:"volume24Hours"`
+	IsResolved            bool        `json:"isResolved"`
+	LastUpdatedTime       int64       `json:"lastUpdatedTime,omitempty"`
 	Min                   float64     `json:"min,omitempty"`
-	Max                   float64 `json:"max,omitempty"`
-	IsLogScale            bool    `json:"isLogScale,omitempty"`
-	Resolution            string  `json:"resolution,omitempty"`
-	ResolutionTime        int64   `json:"resolutionTime,omitempty"`
-	ResolutionProbability float64 `json:"resolutionProbability,omitempty"`
+	Max                   float64     `json:"max,omitempty"`
+	IsLogScale            bool        `json:"isLogScale,omitempty"`
+	Resolution            string      `json:"resolution,omitempty"`
+	ResolutionTime        int64       `json:"resolutionTime,omitempty"`
+	ResolutionProbability float64     `json:"resolutionProbability,omitempty"`
 }
 
 type FullMarket struct {

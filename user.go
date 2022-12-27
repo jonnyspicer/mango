@@ -8,17 +8,17 @@ type ProfitCached struct {
 }
 
 type User struct {
-	Id            string  `json:"id"`
-	CreatedTime   int64   `json:"createdTime"`
-	Name          string  `json:"name"`
-	Username      string  `json:"username"`
-	Url           string  `json:"url"`
-	AvatarUrl     string  `json:"avatarUrl"`
-	Balance       float64 `json:"balance"`
-	TotalDeposits float64 `json:"totalDeposits"`
+	Id            string       `json:"id"`
+	CreatedTime   int64        `json:"createdTime"`
+	Name          string       `json:"name"`
+	Username      string       `json:"username"`
+	Url           string       `json:"url"`
+	AvatarUrl     string       `json:"avatarUrl"`
+	Balance       float64      `json:"balance"`
+	TotalDeposits float64      `json:"totalDeposits"`
 	ProfitCached  ProfitCached `json:"profitCached"`
-	Bio           string `json:"bio,omitempty"`
-	Website       string `json:"website,omitempty"`
-	TwitterHandle string `json:"twitterHandle,omitempty"`
-	DiscordHandle string `json:"discordHandle,omitempty"`
+	Bio           string       `json:"bio,omitempty"`
+	Website       string       `json:"website,omitempty"`
+	TwitterHandle string       `json:"twitterHandle,omitempty"`
+	DiscordHandle string       `json:"discordHandle,omitempty"`
 }
