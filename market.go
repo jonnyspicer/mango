@@ -12,8 +12,6 @@ const (
 
 type Market interface {}
 
-type FullMarket struct {}
-
 type LiteMarket struct {
 	Id               string        `json:"id"`
 	CreatorId        string        `json:"creatorId"`
@@ -64,4 +62,35 @@ type LiteMarket struct {
 	Resolution            string  `json:"resolution,omitempty"`
 	ResolutionTime        int64   `json:"resolutionTime,omitempty"`
 	ResolutionProbability float64 `json:"resolutionProbability,omitempty"`
+}
+
+type FullMarket struct {
+	Id               string   `json:"id"`
+	CreatorId        string   `json:"creatorId"`
+	CreatorUsername  string   `json:"creatorUsername"`
+	CreatorName      string   `json:"creatorName"`
+	CreatedTime      int64    `json:"createdTime"`
+	CreatorAvatarUrl string   `json:"creatorAvatarUrl"`
+	CloseTime        int64    `json:"closeTime"`
+	Question         string   `json:"question"`
+	Tags             []string `json:"tags"`
+	Url              string   `json:"url"`
+	Pool             struct {
+		NO  float64 `json:"NO"`
+		YES float64 `json:"YES"`
+	} `json:"pool"`
+	Probability           float64 `json:"probability"`
+	P                     float64 `json:"p"`
+	TotalLiquidity        float64 `json:"totalLiquidity"`
+	OutcomeType           string  `json:"outcomeType"`
+	Mechanism             string  `json:"mechanism"`
+	Volume                float64 `json:"volume"`
+	Volume24Hours         int     `json:"volume24Hours"`
+	IsResolved            bool    `json:"isResolved"`
+	Resolution            string  `json:"resolution"`
+	ResolutionTime        int64   `json:"resolutionTime"`
+	ResolutionProbability float64 `json:"resolutionProbability"`
+	LastUpdatedTime       int64   `json:"lastUpdatedTime"`
+	Description           string  `json:"description"`
+	TextDescription       string  `json:"textDescription"`
 }
