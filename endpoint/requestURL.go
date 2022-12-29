@@ -11,7 +11,7 @@ func RequestURL(path, value, suffix string, params ...string) string {
 		return ""
 	}
 
-	query, err := url.Parse(Base)
+	query, err := url.Parse(Base + Version)
 	if err != nil {
 		log.Fatalf("error parsing base URL: %v", err)
 	}
@@ -23,7 +23,7 @@ func RequestURL(path, value, suffix string, params ...string) string {
 	} else {
 		ps := url.Values{}
 
-		for i := 0; i < len(params) / 2; i ++ {
+		for i := 0; i < len(params); i += 2 {
 			if params[i+1] != "" {
 				ps.Add(params[i], params[i+1])
 			}

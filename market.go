@@ -10,6 +10,31 @@ const (
 	PseudoNumeric  outcomeType = "PSEUDO-NUMERIC"
 )
 
+type Pool struct {
+	No      float64 `json:"NO,omitempty"`
+	Yes     float64 `json:"YES,omitempty"`
+	Option0  float64 `json:"0,omitempty"`
+	Option1  float64 `json:"1,omitempty"`
+	Option2  float64 `json:"2,omitempty"`
+	Option3  float64 `json:"3,omitempty"`
+	Option4  float64 `json:"4,omitempty"`
+	Option5  float64 `json:"5,omitempty"`
+	Option6  float64 `json:"6,omitempty"`
+	Option7 float64 `json:"7,omitempty"`
+	Option8 float64 `json:"8,omitempty"`
+	Option9 float64 `json:"9,omitempty"`
+	Option10 float64 `json:"10,omitempty"`
+	Option11 float64 `json:"11,omitempty"`
+	Option12 float64     `json:"12,omitempty"`
+	Option13 float64     `json:"13,omitempty"`
+	Option14 float64     `json:"14,omitempty"`
+	Option15 float64     `json:"15,omitempty"`
+	Option16 float64     `json:"16,omitempty"`
+	Option17 float64     `json:"17,omitempty"`
+	Option18 float64     `json:"18,omitempty"`
+	Option19 float64     `json:"19,omitempty"`
+}
+
 type Market interface{}
 
 type LiteMarket struct {
@@ -23,30 +48,7 @@ type LiteMarket struct {
 	Question         string        `json:"question"`
 	Tags             []interface{} `json:"tags"`
 	Url              string        `json:"url"`
-	Pool             struct {      // TODO: fix this
-		NO      float64 `json:"NO,omitempty"`
-		YES     float64 `json:"YES,omitempty"`
-		Field3  float64 `json:"0,omitempty"`
-		Field4  float64 `json:"1,omitempty"`
-		Field5  float64 `json:"2,omitempty"`
-		Field6  float64 `json:"3,omitempty"`
-		Field7  float64 `json:"4,omitempty"`
-		Field8  float64 `json:"5,omitempty"`
-		Field9  float64 `json:"6,omitempty"`
-		Field10 float64 `json:"7,omitempty"`
-		Field11 float64 `json:"8,omitempty"`
-		Field12 float64 `json:"9,omitempty"`
-		Field13 float64 `json:"10,omitempty"`
-		Field14 float64 `json:"11,omitempty"`
-		Field15 int     `json:"12,omitempty"`
-		Field16 int     `json:"13,omitempty"`
-		Field17 int     `json:"14,omitempty"`
-		Field18 int     `json:"15,omitempty"`
-		Field19 int     `json:"16,omitempty"`
-		Field20 int     `json:"17,omitempty"`
-		Field21 int     `json:"18,omitempty"`
-		Field22 int     `json:"19,omitempty"`
-	} `json:"pool"`
+	Pool Pool`json:"pool,omitempty"`
 	Probability           float64     `json:"probability,omitempty"`
 	P                     float64     `json:"p,omitempty"`
 	TotalLiquidity        int64       `json:"totalLiquidity,omitempty"`
@@ -75,17 +77,14 @@ type FullMarket struct {
 	Question         string   `json:"question"`
 	Tags             []string `json:"tags"`
 	Url              string   `json:"url"`
-	Pool             struct {
-		NO  float64 `json:"NO"`
-		YES float64 `json:"YES"`
-	} `json:"pool"`
+	Pool             Pool `json:"pool"`
 	Probability           float64 `json:"probability"`
 	P                     float64 `json:"p"`
 	TotalLiquidity        float64 `json:"totalLiquidity"`
 	OutcomeType           string  `json:"outcomeType"`
 	Mechanism             string  `json:"mechanism"`
 	Volume                float64 `json:"volume"`
-	Volume24Hours         int     `json:"volume24Hours"`
+	Volume24Hours         float64     `json:"volume24Hours"`
 	IsResolved            bool    `json:"isResolved"`
 	Resolution            string  `json:"resolution"`
 	ResolutionTime        int64   `json:"resolutionTime"`
