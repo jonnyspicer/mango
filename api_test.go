@@ -25,6 +25,7 @@ func TestGetBets(t *testing.T) {
 		actual := GetBets(test.ui, test.un, test.ci, test.cs, test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of bets retrieved")
+			t.Fail()
 		}
 	}
 }
@@ -42,6 +43,7 @@ func TestGetComments(t *testing.T) {
 		actual := GetComments(test.ci, test.cs)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of comments retrieved")
+			t.Fail()
 		}
 	}
 }
@@ -57,6 +59,7 @@ func TestGetGroupByID(t *testing.T) {
 		actual := GetGroupByID(test.s)
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
+			t.Fail()
 		}
 	}
 }
@@ -72,6 +75,7 @@ func TestGetGroupBySlug(t *testing.T) {
 		actual := GetGroupBySlug(test.s)
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
+			t.Fail()
 		}
 	}
 }
@@ -88,6 +92,7 @@ func TestGetGroups(t *testing.T) {
 		actual := GetGroups(test.ui)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of groups retrieved")
+			t.Fail()
 		}
 	}
 }
@@ -103,6 +108,7 @@ func TestGetMarketByID(t *testing.T) {
 		actual := GetMarketByID(test.mi)
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
+			t.Fail()
 		}
 	}
 }
@@ -118,6 +124,7 @@ func TestGetMarketBySlug(t *testing.T) {
 		actual := GetMarketBySlug(test.ms)
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
+			t.Fail()
 		}
 	}
 }
@@ -136,6 +143,7 @@ func TestGetMarkets(t *testing.T) {
 		actual := GetMarkets(test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of markets retrieved")
+			t.Fail()
 		}
 	}
 }
@@ -151,6 +159,7 @@ func TestGetMarketsForGroup(t *testing.T) {
 		actual := GetMarketsForGroup(test.gi)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of markets for group")
+			t.Fail()
 		}
 	}
 }
@@ -166,6 +175,7 @@ func TestGetUserByID(t *testing.T) {
 		actual := GetUserByID(test.ui)
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
+			t.Fail()
 		}
 	}
 }
@@ -181,6 +191,7 @@ func TestGetUserByUsername(t *testing.T) {
 		actual := GetUserByUsername(test.un)
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
+			t.Fail()
 		}
 	}
 }
@@ -199,6 +210,7 @@ func TestGetUsers(t *testing.T) {
 		actual := GetUsers(test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of users retrieved")
+			t.Fail()
 		}
 	}
 }

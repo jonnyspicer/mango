@@ -4,7 +4,7 @@ type outcomeType string
 
 const (
 	Binary         outcomeType = "BINARY"
-	FreeResponse   outcomeType = "FREE_REPONSE"
+	FreeResponse   outcomeType = "FREE_RESPONSE"
 	MultipleChoice outcomeType = "MULTIPLE_CHOICE"
 	Numeric        outcomeType = "NUMERIC"
 	PseudoNumeric  outcomeType = "PSEUDO-NUMERIC"
@@ -51,7 +51,7 @@ type LiteMarket struct {
 	Pool Pool`json:"pool,omitempty"`
 	Probability           float64     `json:"probability,omitempty"`
 	P                     float64     `json:"p,omitempty"`
-	TotalLiquidity        int64       `json:"totalLiquidity,omitempty"`
+	TotalLiquidity        float64       `json:"totalLiquidity,omitempty"`
 	OutcomeType           outcomeType `json:"outcomeType"`
 	Mechanism             string      `json:"mechanism"`
 	Volume                float64     `json:"volume"`
@@ -90,6 +90,7 @@ type FullMarket struct {
 	ResolutionTime        int64   `json:"resolutionTime"`
 	ResolutionProbability float64 `json:"resolutionProbability"`
 	LastUpdatedTime       int64   `json:"lastUpdatedTime"`
-	Description           string  `json:"description"`
+	// temporarily ignore `Description` field, right now it's a huge mess in the API
+	// Description           string  `json:"description"`
 	TextDescription       string  `json:"textDescription"`
 }
