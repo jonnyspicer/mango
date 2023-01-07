@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/jonnyspicer/mango"
 )
 
 func main() {
-	fmt.Println("hello world")
+	fmt.Println(mango.GetAuthenticatedUser())
 }

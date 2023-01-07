@@ -13,8 +13,11 @@ const GetGroups string = "groups/"
 const GetMarketBySlug string = "slug/"
 const GetMarketByID string = "market/"
 const GetMarkets string = "markets/"
+const GetMe string = "me/"
 const GetUserByUsername string = "user/"
 const GetUserByID string = "user/by-id/"
 const GetUsers string = "users/"
+
+const PostBet string = "bet/"
 
 const MarketsSuffix = "/markets/"

@@ -14,7 +14,7 @@ type Comment struct {
 	UserAvatarUrl            string  `json:"userAvatarUrl"`
 	ContractId               string  `json:"contractId"`
 	UserId                   string  `json:"userId"`
-	CommenterPositionShares  float64     `json:"commenterPositionShares,omitempty"`
+	CommenterPositionShares  float64 `json:"commenterPositionShares,omitempty"`
 	CommenterPositionOutcome string  `json:"commenterPositionOutcome,omitempty"`
 	BetAmount                float64 `json:"betAmount,omitempty"`
 	BetId                    string  `json:"betId,omitempty"`

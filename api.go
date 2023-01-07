@@ -2,15 +2,59 @@ package mango
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/jonnyspicer/mango/endpoint"
+	"github.com/spf13/viper"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 )
 
+var ak = ""
+var client = http.Client{
+	Timeout: 10,
+}
+
+func apiKey() string {
+	if ak != "" {
+		return ak
+	}
+
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(".")
+
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	ak = viper.GetString("MANIFOLD_API_KEY")
+
+	return ak
+}
+
+func GetAuthenticatedUser() User {
+	req, err := http.NewRequest(http.MethodGet, endpoint.RequestURL(endpoint.GetMe, "", ""), nil)
+	if err != nil {
+		log.Printf("error creating http request: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Key %v", apiKey()))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, User{})
+}
+
 func GetBets(userID, username, contractID, contractSlug, before string, limit int) []Bet {
-	if limit == 0 { limit = endpoint.DefaultLimit}
+	if limit == 0 {
+		limit = endpoint.DefaultLimit
+	}
 	resp, err := http.Get(endpoint.RequestURL(
 		endpoint.GetBets, "", "",
 		"userId", userID,
@@ -147,10 +191,32 @@ func GetUsers(before string, limit int) []User {
 	return parseResponse(resp, []User{})
 }
 
+//func PostBet(contractId, outcome string, amount, limitProb, numericMarketValue float64) {
+//	jsonBody := []byte(fmt.Sprintf("\"amount\":%v,\"contractId\":\"%v\",\"outcome\":\"%v\"", amount, contractId, outcome))
+//
+//	bodyReader := bytes.NewReader(jsonBody)
+//
+//	req, err := http.NewRequest(http.MethodPost, endpoint.RequestURL(
+//		endpoint.PostBet,
+//		"",
+//		""), bodyReader)
+//	if err != nil {
+//		log.Printf("error creating http request: %v", err)
+//	}
+//
+//	req.Header.Set("Content-Type", "application/json")
+//	req.Header.Set("Authorization", fmt.Sprintf("Key %v", apiKey()))
+//
+//	_, err = client.Do(req)
+//	if err != nil {
+//		fmt.Printf("client: error making http request: %v", err)
+//	}
+//}
+
 func parseResponse[S any](r *http.Response, s S) S {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("error reading r body: %v", err)
+		log.Printf("error reading response body: %v", err)
 	}
 
 	if err = json.Unmarshal(body, &s); err != nil {
