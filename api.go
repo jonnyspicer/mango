@@ -1,6 +1,7 @@
 package mango
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/jonnyspicer/mango/endpoint"
@@ -211,6 +212,39 @@ func GetUsers(before string, limit int) []User {
 //	if err != nil {
 //		fmt.Printf("client: error making http request: %v", err)
 //	}
+//}
+
+//type BetRequest struct {
+//	Amount     int     `json:"amount"`
+//	ContractID string  `json:"contractId"`
+//	Outcome    string  `json:"outcome"`
+//	LimitProb  *float64 `json:"limitProb,omitempty"`
+//}
+//
+//func PlaceBet(apiKey string, req BetRequest) error {
+//	url := "https://manifold.markets/api/v0/bet"
+//
+//	reqBody, err := json.Marshal(req)
+//	if err != nil {
+//		return err
+//	}
+//
+//	reqHeaders := http.Header{
+//		"Content-Type":  []string{"application/json"},
+//		"Authorization": []string{"Key " + apiKey},
+//	}
+//
+//	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+//	if err != nil {
+//		return err
+//	}
+//	defer resp.Body.Close()
+//
+//	if resp.StatusCode != http.StatusOK {
+//		return fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
+//	}
+//
+//	return nil
 //}
 
 func parseResponse[S any](r *http.Response, s S) S {
