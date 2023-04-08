@@ -1,11 +1,19 @@
 package mango
 
 import (
+	"encoding/json"
 	"github.com/jonnyspicer/mango/endpoint"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
 func TestGetBets(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		ui, un, ci, cs, b string
 		l                 int
@@ -22,7 +30,7 @@ func TestGetBets(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetBets(test.ui, test.un, test.ci, test.cs, test.b, test.l)
+		actual := mc.GetBets(test.ui, test.un, test.ci, test.cs, test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of bets retrieved")
 			t.Fail()
@@ -31,6 +39,9 @@ func TestGetBets(t *testing.T) {
 }
 
 func TestGetComments(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		ci, cs string
 	}{
@@ -40,7 +51,7 @@ func TestGetComments(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetComments(test.ci, test.cs)
+		actual := mc.GetComments(test.ci, test.cs)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of comments retrieved")
 			t.Fail()
@@ -49,6 +60,9 @@ func TestGetComments(t *testing.T) {
 }
 
 func TestGetGroupByID(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		s string
 	}{
@@ -56,7 +70,7 @@ func TestGetGroupByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetGroupByID(test.s)
+		actual := mc.GetGroupByID(test.s)
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
 			t.Fail()
@@ -65,6 +79,9 @@ func TestGetGroupByID(t *testing.T) {
 }
 
 func TestGetGroupBySlug(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		s string
 	}{
@@ -72,7 +89,7 @@ func TestGetGroupBySlug(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetGroupBySlug(test.s)
+		actual := mc.GetGroupBySlug(test.s)
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
 			t.Fail()
@@ -81,6 +98,9 @@ func TestGetGroupBySlug(t *testing.T) {
 }
 
 func TestGetGroups(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		ui string
 	}{
@@ -89,7 +109,7 @@ func TestGetGroups(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetGroups(test.ui)
+		actual := mc.GetGroups(test.ui)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of groups retrieved")
 			t.Fail()
@@ -98,6 +118,9 @@ func TestGetGroups(t *testing.T) {
 }
 
 func TestGetMarketByID(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		mi string
 	}{
@@ -105,7 +128,7 @@ func TestGetMarketByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetMarketByID(test.mi)
+		actual := mc.GetMarketByID(test.mi)
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
 			t.Fail()
@@ -114,6 +137,9 @@ func TestGetMarketByID(t *testing.T) {
 }
 
 func TestGetMarketBySlug(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		ms string
 	}{
@@ -121,7 +147,7 @@ func TestGetMarketBySlug(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetMarketBySlug(test.ms)
+		actual := mc.GetMarketBySlug(test.ms)
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
 			t.Fail()
@@ -130,6 +156,9 @@ func TestGetMarketBySlug(t *testing.T) {
 }
 
 func TestGetMarkets(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		b string
 		l int
@@ -140,7 +169,7 @@ func TestGetMarkets(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetMarkets(test.b, test.l)
+		actual := mc.GetMarkets(test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of markets retrieved")
 			t.Fail()
@@ -149,6 +178,9 @@ func TestGetMarkets(t *testing.T) {
 }
 
 func TestGetMarketsForGroup(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		gi string
 	}{
@@ -156,7 +188,7 @@ func TestGetMarketsForGroup(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetMarketsForGroup(test.gi)
+		actual := mc.GetMarketsForGroup(test.gi)
 		if len(actual) < 1 {
 			t.Errorf("incorrect number of markets for group")
 			t.Fail()
@@ -165,6 +197,9 @@ func TestGetMarketsForGroup(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		ui string
 	}{
@@ -172,7 +207,7 @@ func TestGetUserByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetUserByID(test.ui)
+		actual := mc.GetUserByID(test.ui)
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
 			t.Fail()
@@ -181,6 +216,9 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUserByUsername(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		un string
 	}{
@@ -188,7 +226,7 @@ func TestGetUserByUsername(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetUserByUsername(test.un)
+		actual := mc.GetUserByUsername(test.un)
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
 			t.Fail()
@@ -197,6 +235,9 @@ func TestGetUserByUsername(t *testing.T) {
 }
 
 func TestGetUsers(t *testing.T) {
+	mc := defaultManiClient()
+	defer mc.destroy()
+
 	var tests = []struct {
 		b string
 		l int
@@ -207,10 +248,83 @@ func TestGetUsers(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := GetUsers(test.b, test.l)
+		actual := mc.GetUsers(test.b, test.l)
 		if len(actual) != test.l {
 			t.Errorf("incorrect number of users retrieved")
 			t.Fail()
 		}
 	}
+}
+
+func TestGetMarketPositions(t *testing.T) {
+	expected := []ContractMetric{
+		{
+			ContractId: "1",
+			From: map[string]Period{
+				"2022-01-01": {
+					Profit:        100.0,
+					ProfitPercent: 10.0,
+					Invested:      1000.0,
+					PrevValue:     1000.0,
+					Value:         1100.0,
+				},
+			},
+			HasNoShares:   false,
+			HasShares:     true,
+			HasYesShares:  false,
+			Invested:      1000.0,
+			Loan:          0.0,
+			MaxShares:     "",
+			Payout:        100.0,
+			Profit:        100.0,
+			ProfitPercent: 10.0,
+			TotalShares: map[string]float64{
+				"NO":  100.0,
+				"YES": 0.0,
+			},
+			UserId:        "user1",
+			UserName:      "John Doe",
+			UserUsername:  "johndoe",
+			UserAvatarUrl: "https://example.com/avatar.png",
+			LastBetTime:   1641004800,
+		},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := maniClientInstance(server.Client(), &server.URL)
+	defer mc.destroy()
+
+	result := mc.GetMarketPositions("1", "desc", nil, nil, "user1")
+
+	if len(result) != len(expected) {
+		t.Errorf("unexpected result length: got %d, want %d", len(result), len(expected))
+	}
+
+	for i, contract := range result {
+		b, s := contract.Equals(expected[i])
+		if !b {
+			t.Errorf(s)
+		}
+	}
+}
+
+type mockTransport struct {
+	response string
+	status   int
+}
+
+func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp := http.Response{
+		StatusCode: t.status,
+		Body:       io.NopCloser(strings.NewReader(t.response)),
+	}
+
+	return &resp, nil
 }

@@ -20,3 +20,10 @@ type Comment struct {
 	BetId                    string  `json:"betId,omitempty"`
 	BetOutcome               string  `json:"betOutcome,omitempty"`
 }
+
+type CommentRequest struct {
+	ContractId string `json:"contractId"`
+	Content    string `json:"content,omitempty"`
+	Html       string `json:"html,omitempty"`
+	Markdown   string `json:"markdown,omitempty"`
+}

@@ -14,6 +14,13 @@ type Fill struct {
 	IsSale       bool    `json:"isSale,omitempty"`
 }
 
+type BetRequest struct {
+	Amount     float64     `json:"amount"`
+	ContractID string  `json:"contractId"`
+	Outcome    string  `json:"outcome"`
+	LimitProb  *float64 `json:"limitProb,omitempty"`
+}
+
 type Bet struct {
 	Outcome       string  `json:"outcome"`
 	Fees          Fees    `json:"fees"`

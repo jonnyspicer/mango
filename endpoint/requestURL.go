@@ -5,13 +5,13 @@ import (
 	"net/url"
 )
 
-func RequestURL(path, value, suffix string, params ...string) string {
-	if len(params) % 2 != 0 {
+func RequestURL(base, path, value, suffix string, params ...string) string {
+	if len(params)%2 != 0 {
 		log.Println("number of params passed to RequestURL() must be divisible by 2")
 		return ""
 	}
 
-	query, err := url.Parse(Base + Version)
+	query, err := url.Parse(base + "/" + Version)
 	if err != nil {
 		log.Fatalf("error parsing base URL: %v", err)
 	}

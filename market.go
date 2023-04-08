@@ -35,6 +35,71 @@ type Pool struct {
 	Option19 float64 `json:"19,omitempty"`
 }
 
+type Answer struct {
+	Id             string        `json:"id"`
+	Username       string        `json:"username"`
+	Name           string        `json:"name"`
+	UserId string `json:"userId"`
+	CreatedTime           int64         `json:"createdTime"`
+	AvatarUrl      string        `json:"avatarUrl"`
+	Number int64 `json:"number"`
+	ContractId string `json:"contractId"`
+	Text string `json:"text"`
+	Probability float64 `json:"probability"`
+}
+
+
+type MarketRequest struct {
+	OutcomeType string   `json:"outcomeType"`
+	Question    string   `json:"question"`
+	Description string   `json:"description,omitempty"`
+	CloseTime   int64    `json:"closeTime,omitempty"`
+	Visibility  string   `json:"visibility,omitempty"`
+	GroupId     string   `json:"groupId,omitempty"`
+	InitialProb int      `json:"initialProb,omitempty"`
+	Min         int      `json:"min,omitempty"`
+	Max         int      `json:"max,omitempty"`
+	IsLogScale  bool     `json:"isLogScale,omitempty"`
+	InitialVal  int      `json:"initialValue,omitempty"`
+	Answers     []string `json:"answers,omitempty"`
+}
+
+type MarketResponse struct {
+	Id string `json:"id"`
+}
+
+type LiquidityAmount struct {
+	Amount int64 `json:"amount"`
+}
+
+type CloseTimestamp struct {
+	CloseTime int64 `json:"closeTime,omitempty"`
+}
+
+type GroupId struct {
+	GroupId string `json:"groupId,omitempty"`
+}
+
+
+type ResolveMarketRequest struct {
+	Outcome        string               `json:"outcome"`
+	Resolutions    []Resolution         `json:"resolutions,omitempty"`
+	ProbabilityInt int                  `json:"probabilityInt,omitempty"`
+	Value          float64              `json:"value,omitempty"`
+}
+
+type Resolution struct {
+	Answer int `json:"answer"`
+	Pct    int `json:"pct"`
+}
+
+type SellSharesRequest struct {
+	Outcome string `json:"outcome,omitempty"`
+	Shares  int    `json:"shares,omitempty"`
+}
+
+
+
 type Market interface{}
 
 type LiteMarket struct {
@@ -75,6 +140,7 @@ type FullMarket struct {
 	CreatorAvatarUrl      string   `json:"creatorAvatarUrl"`
 	CloseTime             int64    `json:"closeTime"`
 	Question              string   `json:"question"`
+	Answers []Answer `json:"answers,omitempty"`
 	Tags                  []string `json:"tags"`
 	Url                   string   `json:"url"`
 	Pool                  Pool     `json:"pool"`
@@ -90,7 +156,7 @@ type FullMarket struct {
 	ResolutionTime        int64    `json:"resolutionTime"`
 	ResolutionProbability float64  `json:"resolutionProbability"`
 	LastUpdatedTime       int64    `json:"lastUpdatedTime"`
-	// temporarily ignore `Description` field, right now it's a huge mess in the API
+	// temporarily ignore `Description` field, as it's html-in-json, see https://tiptap.dev/guide/output#option-1-json
 	// Description           string  `json:"description"`
 	TextDescription string `json:"textDescription"`
 }
