@@ -1,5 +1,8 @@
 package mango
 
+// Comment represents a Comment object in the Manifold backend.
+//
+// This type isn't documented by Manifold and its structure was inferred from API calls.
 type Comment struct {
 	UserUsername             string  `json:"userUsername"`
 	ContractSlug             string  `json:"contractSlug"`
@@ -21,9 +24,18 @@ type Comment struct {
 	BetOutcome               string  `json:"betOutcome,omitempty"`
 }
 
-type CommentRequest struct {
+// PostCommentRequest represents the parameters required to post a
+// new [Comment] via the API
+type PostCommentRequest struct {
 	ContractId string `json:"contractId"`
 	Content    string `json:"content,omitempty"`
 	Html       string `json:"html,omitempty"`
 	Markdown   string `json:"markdown,omitempty"`
+}
+
+// GetCommentsRequest represents the optional parameters that can be supplied to
+// get comments via the API
+type GetCommentsRequest struct {
+	ContractId   string `json:"contractId,omitempty"`
+	ContractSlug string `json:"contractSlug,omitempty"`
 }

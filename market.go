@@ -1,15 +1,18 @@
 package mango
 
-type outcomeType string
+// OutcomeType represents the different types of markets
+// available on Manifold.
+type OutcomeType string
 
 const (
-	Binary         outcomeType = "BINARY"
-	FreeResponse   outcomeType = "FREE_RESPONSE"
-	MultipleChoice outcomeType = "MULTIPLE_CHOICE"
-	Numeric        outcomeType = "NUMERIC"
-	PseudoNumeric  outcomeType = "PSEUDO-NUMERIC"
+	Binary         OutcomeType = "BINARY"
+	FreeResponse   OutcomeType = "FREE_RESPONSE"
+	MultipleChoice OutcomeType = "MULTIPLE_CHOICE"
+	Numeric        OutcomeType = "NUMERIC"
+	PseudoNumeric  OutcomeType = "PSEUDO-NUMERIC"
 )
 
+// Pool represents the potential outcomes for a market.
 type Pool struct {
 	No       float64 `json:"NO,omitempty"`
 	Yes      float64 `json:"YES,omitempty"`
@@ -35,73 +38,95 @@ type Pool struct {
 	Option19 float64 `json:"19,omitempty"`
 }
 
+// Answer represents a potential answer on a free response market
 type Answer struct {
-	Id             string        `json:"id"`
-	Username       string        `json:"username"`
-	Name           string        `json:"name"`
-	UserId string `json:"userId"`
-	CreatedTime           int64         `json:"createdTime"`
-	AvatarUrl      string        `json:"avatarUrl"`
-	Number int64 `json:"number"`
-	ContractId string `json:"contractId"`
-	Text string `json:"text"`
+	Id          string  `json:"id"`
+	Username    string  `json:"username"`
+	Name        string  `json:"name"`
+	UserId      string  `json:"userId"`
+	CreatedTime int64   `json:"createdTime"`
+	AvatarUrl   string  `json:"avatarUrl"`
+	Number      int64   `json:"number"`
+	ContractId  string  `json:"contractId"`
+	Text        string  `json:"text"`
 	Probability float64 `json:"probability"`
 }
 
-
-type MarketRequest struct {
-	OutcomeType string   `json:"outcomeType"`
-	Question    string   `json:"question"`
-	Description string   `json:"description,omitempty"`
-	CloseTime   int64    `json:"closeTime,omitempty"`
-	Visibility  string   `json:"visibility,omitempty"`
-	GroupId     string   `json:"groupId,omitempty"`
-	InitialProb int      `json:"initialProb,omitempty"`
-	Min         int      `json:"min,omitempty"`
-	Max         int      `json:"max,omitempty"`
-	IsLogScale  bool     `json:"isLogScale,omitempty"`
-	InitialVal  int      `json:"initialValue,omitempty"`
-	Answers     []string `json:"answers,omitempty"`
+// GetMarketsRequest represents the optional parameters that can be supplied to
+// get markets via the API
+type GetMarketsRequest struct {
+	Before string `json:"before,omitempty"`
+	Limit  int64  `json:"limit,omitempty"`
 }
 
-type MarketResponse struct {
+// PostMarketRequest represents the parameters required to create a new market via the API
+type PostMarketRequest struct {
+	OutcomeType         OutcomeType `json:"OutcomeType"`
+	Question            string      `json:"question"`
+	Description         string      `json:"description,omitempty"`
+	DescriptionHtml     string      `json:"descriptionHtml,omitempty"`
+	DescriptionMarkdown string      `json:"descriptionMarkdown,omitempty"`
+	CloseTime           int64       `json:"closeTime,omitempty"`
+	Visibility          string      `json:"visibility,omitempty"`
+	GroupId             string      `json:"groupId,omitempty"`
+	InitialProb         int64       `json:"initialProb,omitempty"`
+	Min                 int64       `json:"min,omitempty"`
+	Max                 int64       `json:"max,omitempty"`
+	IsLogScale          bool        `json:"isLogScale,omitempty"`
+	InitialVal          int64       `json:"initialValue,omitempty"`
+	Answers             []string    `json:"answers,omitempty"`
+}
+
+// PostMarketResponse represents the market ID returned by the API
+// after successfully creating a new market.
+type PostMarketResponse struct {
 	Id string `json:"id"`
 }
 
-type LiquidityAmount struct {
+// liquidityAmount represents the amount of liquidity in a market
+type liquidityAmount struct {
 	Amount int64 `json:"amount"`
 }
 
+// CloseTimestamp represents the closing time of a market,
+// using epoch time.
 type CloseTimestamp struct {
 	CloseTime int64 `json:"closeTime,omitempty"`
 }
 
-type GroupId struct {
+// MarketGroupId represents the ID of a group that a market
+// is part of.
+type MarketGroupId struct {
 	GroupId string `json:"groupId,omitempty"`
 }
 
-
+// ResolveMarketRequest represents the parameters required to resolve a market via the API
 type ResolveMarketRequest struct {
-	Outcome        string               `json:"outcome"`
-	Resolutions    []Resolution         `json:"resolutions,omitempty"`
-	ProbabilityInt int                  `json:"probabilityInt,omitempty"`
-	Value          float64              `json:"value,omitempty"`
+	Outcome        string       `json:"outcome"`
+	Resolutions    []Resolution `json:"resolutions,omitempty"`
+	ProbabilityInt int64        `json:"probabilityInt,omitempty"`
+	Value          float64      `json:"value,omitempty"`
 }
 
+// Resolution represents the percentage a given answer should resolve to
+// on a market
 type Resolution struct {
-	Answer int `json:"answer"`
-	Pct    int `json:"pct"`
+	Answer int64 `json:"answer"`
+	Pct    int64 `json:"pct"`
 }
 
+// SellSharesRequest represents a request to sell shares
 type SellSharesRequest struct {
 	Outcome string `json:"outcome,omitempty"`
-	Shares  int    `json:"shares,omitempty"`
+	Shares  int64  `json:"shares,omitempty"`
 }
 
-
-
-type Market interface{}
-
+// LiteMarket represents a LiteMarket object in the Manifold backend.
+// A LiteMarket is similar to a [FullMarket], except it has fewer fields.
+//
+// See [the Manifold API docs for GET /v0/markets] for more details
+//
+// [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
 type LiteMarket struct {
 	Id                    string        `json:"id"`
 	CreatorId             string        `json:"creatorId"`
@@ -117,7 +142,7 @@ type LiteMarket struct {
 	Probability           float64       `json:"probability,omitempty"`
 	P                     float64       `json:"p,omitempty"`
 	TotalLiquidity        float64       `json:"totalLiquidity,omitempty"`
-	OutcomeType           outcomeType   `json:"outcomeType"`
+	OutcomeType           OutcomeType   `json:"OutcomeType"`
 	Mechanism             string        `json:"mechanism"`
 	Volume                float64       `json:"volume"`
 	Volume24Hours         float64       `json:"volume24Hours"`
@@ -131,6 +156,12 @@ type LiteMarket struct {
 	ResolutionProbability float64       `json:"resolutionProbability,omitempty"`
 }
 
+// FullMarket represents a FullMarket object in the Manifold backend.
+// A FullMarket is similar to a [LiteMarket], except it has more fields.
+//
+// See [the Manifold API docs for GET /v0/market/[marketId]] for more details
+//
+// [the Manifold API docs for GET /v0/market/[marketId]]: https://docs.manifold.markets/api#get-v0marketmarketid
 type FullMarket struct {
 	Id                    string   `json:"id"`
 	CreatorId             string   `json:"creatorId"`
@@ -140,14 +171,14 @@ type FullMarket struct {
 	CreatorAvatarUrl      string   `json:"creatorAvatarUrl"`
 	CloseTime             int64    `json:"closeTime"`
 	Question              string   `json:"question"`
-	Answers []Answer `json:"answers,omitempty"`
+	Answers               []Answer `json:"answers,omitempty"`
 	Tags                  []string `json:"tags"`
 	Url                   string   `json:"url"`
 	Pool                  Pool     `json:"pool"`
 	Probability           float64  `json:"probability"`
 	P                     float64  `json:"p"`
 	TotalLiquidity        float64  `json:"totalLiquidity"`
-	OutcomeType           string   `json:"outcomeType"`
+	OutcomeType           string   `json:"OutcomeType"`
 	Mechanism             string   `json:"mechanism"`
 	Volume                float64  `json:"volume"`
 	Volume24Hours         float64  `json:"volume24Hours"`
@@ -156,7 +187,7 @@ type FullMarket struct {
 	ResolutionTime        int64    `json:"resolutionTime"`
 	ResolutionProbability float64  `json:"resolutionProbability"`
 	LastUpdatedTime       int64    `json:"lastUpdatedTime"`
-	// temporarily ignore `Description` field, as it's html-in-json, see https://tiptap.dev/guide/output#option-1-json
-	// Description           string  `json:"description"`
+	// Description field returns HTML marshalled to JSON, see https://tiptap.dev/guide/output#option-1-json
+	Description     string `json:"description"`
 	TextDescription string `json:"textDescription"`
 }

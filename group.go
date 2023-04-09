@@ -1,20 +1,26 @@
 package mango
 
+// PinnedItem represents the pinned item of a [Group].
 type PinnedItem struct {
 	ItemId string `json:"itemId"`
 	Type   string `json:"type"`
 }
 
+// Leader represents the leader of a [Group].
 type Leader struct {
 	UserId string  `json:"userId"`
 	Score  float64 `json:"score"`
 }
 
+// CachedLeaderboard represents the leaderboard os a [Group]
 type CachedLeaderboard struct {
 	TopTraders  []Leader `json:"topTraders"`
 	TopCreators []Leader `json:"topCreators"`
 }
 
+// Group represents a Group object in the Manifold backend.
+//
+// This type isn't documented by Manifold and its structure was inferred from API calls.
 type Group struct {
 	AboutPostId                 string            `json:"aboutPostId,omitempty"`
 	MostRecentActivityTime      int64             `json:"mostRecentActivityTime"`

@@ -2,23 +2,63 @@ package mango
 
 import (
 	"encoding/json"
-	"github.com/jonnyspicer/mango/endpoint"
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
+// TODO: extract non-deterministic tests out as e2e tests, replace them with deterministic unit tests
+func TestGetAuthenticatedUser(t *testing.T) {
+	expected := User{
+		Id:            "igi2zGXsfxYPgB0DJTXVJVmwCOr2",
+		CreatedTime:   1639011767273,
+		Name:          "Austin",
+		Username:      "Austin",
+		Url:           "https://manifold.markets/Austin",
+		AvatarUrl:     "https://lh3.googleusercontent.com/a-/AOh14GiZyl1lBehuBMGyJYJhZd-N-mstaUtgE4xdI22lLw=s96-c",
+		BannerUrl:     "https://images.unsplash.com/photo-1501523460185-2aa5d2a0f981?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1531&q=80",
+		Balance:       10000.0,
+		TotalDeposits: 10000.0,
+		ProfitCached:  ProfitCached{},
+		Bio:           "I build Manifold! Always happy to chat; reach out on Discord or find a time on https://calendly.com/austinchen/manifold!",
+		Website:       "https://blog.austn.io",
+		TwitterHandle: "akrolsmir",
+		DiscordHandle: "akrolsmir#4125",
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetAuthenticatedUser()
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
+
+	b, s := equalUsers(*result, expected)
+	if !b {
+		t.Errorf(s)
+		t.Fail()
+	}
+}
+
 func TestGetBets(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		ui, un, ci, cs, b string
-		l                 int
+		l                 int64
 	}{
-		{"", "", "", "", "", endpoint.DefaultLimit},
+		{"", "", "", "", "", DefaultLimit},
 		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", "", "", "", "", 10},
 		{"", "jonny", "", "", "", 10},
 		{"", "", "5BOGaVlxLaZt6sdPSUkn", "", "", 10},
@@ -30,8 +70,14 @@ func TestGetBets(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetBets(test.ui, test.un, test.ci, test.cs, test.b, test.l)
-		if len(actual) != test.l {
+		gbr := GetBetsRequest{
+			test.ui, test.un, test.ci, test.cs, test.b, test.l
+		}
+		actual, err := mc.GetBets(gbr)
+		if err != nil {
+			t.Errorf("error getting bets: %v", err)
+		}
+		if int64(len(*actual)) != test.l {
 			t.Errorf("incorrect number of bets retrieved")
 			t.Fail()
 		}
@@ -39,8 +85,8 @@ func TestGetBets(t *testing.T) {
 }
 
 func TestGetComments(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		ci, cs string
@@ -60,8 +106,8 @@ func TestGetComments(t *testing.T) {
 }
 
 func TestGetGroupByID(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		s string
@@ -70,7 +116,7 @@ func TestGetGroupByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetGroupByID(test.s)
+		actual := mc.GetGroupById(test.s)
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
 			t.Fail()
@@ -79,8 +125,8 @@ func TestGetGroupByID(t *testing.T) {
 }
 
 func TestGetGroupBySlug(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		s string
@@ -98,8 +144,8 @@ func TestGetGroupBySlug(t *testing.T) {
 }
 
 func TestGetGroups(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		ui string
@@ -118,8 +164,8 @@ func TestGetGroups(t *testing.T) {
 }
 
 func TestGetMarketByID(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		mi string
@@ -137,8 +183,8 @@ func TestGetMarketByID(t *testing.T) {
 }
 
 func TestGetMarketBySlug(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		ms string
@@ -156,16 +202,16 @@ func TestGetMarketBySlug(t *testing.T) {
 }
 
 func TestGetMarkets(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		b string
 		l int
 	}{
 		{"4QTb4cANeQzXNQS9lZnn", 10},
-		{"4QTb4cANeQzXNQS9lZnn", endpoint.DefaultLimit},
-		{"", endpoint.DefaultLimit},
+		{"4QTb4cANeQzXNQS9lZnn", DefaultLimit},
+		{"", DefaultLimit},
 	}
 
 	for _, test := range tests {
@@ -178,8 +224,8 @@ func TestGetMarkets(t *testing.T) {
 }
 
 func TestGetMarketsForGroup(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		gi string
@@ -197,8 +243,8 @@ func TestGetMarketsForGroup(t *testing.T) {
 }
 
 func TestGetUserByID(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		ui string
@@ -216,8 +262,8 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUserByUsername(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		un string
@@ -235,16 +281,16 @@ func TestGetUserByUsername(t *testing.T) {
 }
 
 func TestGetUsers(t *testing.T) {
-	mc := defaultManiClient()
-	defer mc.destroy()
+	mc := DefaultClientInstance()
+	defer mc.Destroy()
 
 	var tests = []struct {
 		b string
 		l int
 	}{
 		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", 10},
-		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", endpoint.DefaultLimit},
-		{"", endpoint.DefaultLimit},
+		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", DefaultLimit},
+		{"", DefaultLimit},
 	}
 
 	for _, test := range tests {
@@ -298,8 +344,8 @@ func TestGetMarketPositions(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := maniClientInstance(server.Client(), &server.URL)
-	defer mc.destroy()
+	mc := ClientInstance(server.Client(), &server.URL)
+	defer mc.Destroy()
 
 	result := mc.GetMarketPositions("1", "desc", nil, nil, "user1")
 
@@ -308,23 +354,9 @@ func TestGetMarketPositions(t *testing.T) {
 	}
 
 	for i, contract := range result {
-		b, s := contract.Equals(expected[i])
+		b, s := equalContractMetrics(contract, expected[i])
 		if !b {
 			t.Errorf(s)
 		}
 	}
-}
-
-type mockTransport struct {
-	response string
-	status   int
-}
-
-func (t *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	resp := http.Response{
-		StatusCode: t.status,
-		Body:       io.NopCloser(strings.NewReader(t.response)),
-	}
-
-	return &resp, nil
 }

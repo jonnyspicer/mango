@@ -1,4 +1,9 @@
-package endpoint
+package mango
+
+// Various constants associated with the Manifold REST API.
+// See [the Manifold API docs] for more details
+//
+// [the Manifold API docs]: https://docs.manifold.markets/api
 
 const Base string = "https://manifold.markets/api"
 const Version string = "v0/"

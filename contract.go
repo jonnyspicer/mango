@@ -2,6 +2,11 @@ package mango
 
 import "fmt"
 
+// ContractMetric represents a single position in a market.
+//
+// See [the Manifold API docs for GET /v0/market/marketId/positions] for more details
+//
+// [the Manifold API docs for GET /v0/market/marketId/positions]: https://docs.manifold.markets/api#get-v0marketmarketidpositions
 type ContractMetric struct {
 	ContractId    string             `json:"contractId"`
 	From          map[string]Period  `json:"from,omitempty"`
@@ -22,6 +27,7 @@ type ContractMetric struct {
 	LastBetTime   int64              `json:"lastBetTime,omitempty"`
 }
 
+// Period represents activity on a contract during a given day, week or month
 type Period struct {
 	Profit        float64 `json:"profit"`
 	ProfitPercent float64 `json:"profitPercent"`
@@ -30,7 +36,19 @@ type Period struct {
 	Value         float64 `json:"value"`
 }
 
-func (cm1 ContractMetric) Equals(cm2 ContractMetric) (bool, string) {
+// GetMarketPositionsRequest represents the optional parameters that can be supplied to
+// get market positions via the API
+//
+// MarketId is required, all other fields are optional.
+type GetMarketPositionsRequest struct {
+	MarketId string `json:"marketId"`
+	Order    string `json:"order,omitempty"`
+	Top      int    `json:"top,omitempty"`
+	Bottom   int    `json:"bottom,omitempty"`
+	UserId   string `json:"userId,omitempty"`
+}
+
+func equalContractMetrics(cm1, cm2 ContractMetric) (bool, string) {
 	// Compare each field of the objects
 	if cm1.ContractId != cm2.ContractId {
 		return false, fmt.Sprintf("ContractId fields are not equal: got %v expected %v", cm1.ContractId, cm2.ContractId)
