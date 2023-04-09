@@ -39,7 +39,7 @@ type User struct {
 
 func equalUsers(u1, u2 User) (bool, string) {
 	if u1.Id != u2.Id {
-		return false, fmt.Sprintf("user Id is not equal: %v & %v", u1.Id, u2.Id)
+		return false, fmt.Sprintf("user id is not equal: %v & %v", u1.Id, u2.Id)
 	}
 	if u1.CreatedTime != u2.CreatedTime {
 		return false, fmt.Sprintf("user CreatedTime is not equal: %v & %v", u1.CreatedTime, u2.CreatedTime)

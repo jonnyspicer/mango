@@ -14,7 +14,7 @@ type Client struct {
 }
 
 var lock = &sync.Mutex{}
-var mcInstance *Client
+var mcInstance *Client // TODO: figure out whether this should really be a singleton or not
 
 // ClientInstance creates a singleton of the Mango Client.
 // It optionally takes a http.Client, base URL, and API key.

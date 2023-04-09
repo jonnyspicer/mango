@@ -22,7 +22,6 @@ import (
 )
 
 // TODO: POST doc comments need a note that they won't work without an API key
-// TODO: POST methods need refactoring to take the common request code out
 
 // GetAuthenticatedUser returns the [User] associated with the current API key.
 // If the key is invalid or not present, returns nil and an error.
@@ -31,17 +30,12 @@ import (
 //
 // [the Manifold API docs for GET /v0/me]: https://docs.manifold.markets/api#get-v0me
 func (mc *Client) GetAuthenticatedUser() (*User, error) {
-	if mc.key == "" {
-		return nil, fmt.Errorf("no API key found")
-	}
 	req, err := http.NewRequest(http.MethodGet, requestURL(mc.url, GetMe, "", ""), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -407,10 +401,7 @@ func (mc *Client) PostBet(br PostBetRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -438,10 +429,7 @@ func (mc *Client) CancelBet(betId string) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -491,10 +479,7 @@ func (mc *Client) CreateMarket(mr PostMarketRequest) (*string, error) {
 		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -505,12 +490,14 @@ func (mc *Client) CreateMarket(mr PostMarketRequest) (*string, error) {
 
 	defer resp.Body.Close()
 
-	var marketResp PostMarketResponse // TODO: make this anonymous
+	marketResp := struct {
+		id string `json:"id"`
+	}{}
 	if err = json.NewDecoder(resp.Body).Decode(&marketResp); err != nil {
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	return &marketResp.Id, nil
+	return &marketResp.id, nil
 }
 
 // AddLiquidity adds a given amount of liquidity to a given market.
@@ -521,9 +508,9 @@ func (mc *Client) CreateMarket(mr PostMarketRequest) (*string, error) {
 //
 // [the Manifold API docs for POST /v0/market/marketId/add-liquidity]: https://docs.manifold.markets/api#post-v0marketmarketidadd-liquidity
 func (mc *Client) AddLiquidity(marketId string, amount int64) error {
-	amt := liquidityAmount{ // TODO: make this anonymous
-		Amount: amount,
-	}
+	amt := struct {
+		Amount int64 `json:"amount"`
+	}{amount}
 
 	jsonBody, err := json.Marshal(amt)
 	if err != nil {
@@ -540,10 +527,7 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -564,9 +548,9 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 //
 // [the Manifold API docs for POST /v0/market/marketId/close]: https://docs.manifold.markets/api#post-v0marketmarketidclose
 func (mc *Client) CloseMarket(marketId string, ct *int64) error {
-	c := CloseTimestamp{ // TODO: make this anonymous
-		CloseTime: *ct,
-	}
+	c := struct {
+		closeTime int64 `json:"closeTime,omitempty"`
+	}{*ct}
 
 	jsonBody, err := json.Marshal(c)
 	if err != nil {
@@ -583,10 +567,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -606,9 +587,9 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 //
 // [the Manifold API docs for POST /v0/market/marketId/group]: https://docs.manifold.markets/api#post-v0marketmarketidgroup
 func (mc *Client) AddMarketToGroup(marketId, gi string) error {
-	g := MarketGroupId{ // TODO: make this anonymous
-		GroupId: gi,
-	}
+	g := struct {
+		groupId string `json:"groupId,omitempty"`
+	}{gi}
 
 	jsonBody, err := json.Marshal(g)
 	if err != nil {
@@ -625,10 +606,7 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -669,10 +647,7 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -709,10 +684,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -751,10 +723,7 @@ func (mc *Client) PostComment(marketId string, cr PostCommentRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
-
-	resp, err := mc.client.Do(req)
+	resp, err := mc.postRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -783,4 +752,15 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	}
 
 	return &s, nil
+}
+
+func (mc *Client) postRequest(req *http.Request) (*http.Response, error) {
+	if mc.key == "" {
+		return nil, fmt.Errorf("no API key found")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
+
+	return mc.postRequest(req)
 }

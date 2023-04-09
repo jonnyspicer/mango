@@ -71,11 +71,12 @@ func TestGetBets(t *testing.T) {
 
 	for _, test := range tests {
 		gbr := GetBetsRequest{
-			test.ui, test.un, test.ci, test.cs, test.b, test.l
+			test.ui, test.un, test.ci, test.cs, test.b, test.l,
 		}
 		actual, err := mc.GetBets(gbr)
 		if err != nil {
 			t.Errorf("error getting bets: %v", err)
+			t.Fail()
 		}
 		if int64(len(*actual)) != test.l {
 			t.Errorf("incorrect number of bets retrieved")
@@ -97,8 +98,12 @@ func TestGetComments(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetComments(test.ci, test.cs)
-		if len(actual) < 1 {
+		actual, err := mc.GetComments(GetCommentsRequest{test.ci, test.cs})
+		if err != nil {
+			t.Errorf("error getting comments: %v", err)
+			t.Fail()
+		}
+		if len(*actual) < 1 {
 			t.Errorf("incorrect number of comments retrieved")
 			t.Fail()
 		}
@@ -116,7 +121,11 @@ func TestGetGroupByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetGroupById(test.s)
+		actual, err := mc.GetGroupById(test.s)
+		if err != nil {
+			t.Errorf("error getting group by id: %v", err)
+			t.Fail()
+		}
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
 			t.Fail()
@@ -135,7 +144,11 @@ func TestGetGroupBySlug(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetGroupBySlug(test.s)
+		actual, err := mc.GetGroupBySlug(test.s)
+		if err != nil {
+			t.Errorf("error getting group by slug: %v", err)
+			t.Fail()
+		}
 		if actual.TotalMembers < 1 {
 			t.Errorf("incorrect number of members on retrieved group")
 			t.Fail()
@@ -155,8 +168,12 @@ func TestGetGroups(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetGroups(test.ui)
-		if len(actual) < 1 {
+		actual, err := mc.GetGroups(&test.ui)
+		if err != nil {
+			t.Errorf("error getting groups: %v", err)
+			t.Fail()
+		}
+		if len(*actual) < 1 {
 			t.Errorf("incorrect number of groups retrieved")
 			t.Fail()
 		}
@@ -174,7 +191,11 @@ func TestGetMarketByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetMarketByID(test.mi)
+		actual, err := mc.GetMarketByID(test.mi)
+		if err != nil {
+			t.Errorf("error getting market by id: %v", err)
+			t.Fail()
+		}
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
 			t.Fail()
@@ -193,7 +214,11 @@ func TestGetMarketBySlug(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetMarketBySlug(test.ms)
+		actual, err := mc.GetMarketBySlug(test.ms)
+		if err != nil {
+			t.Errorf("error getting market by slug: %v", err)
+			t.Fail()
+		}
 		if actual.Volume < 1 {
 			t.Errorf("incorrect volume on retrieved market")
 			t.Fail()
@@ -215,8 +240,12 @@ func TestGetMarkets(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetMarkets(test.b, test.l)
-		if len(actual) != test.l {
+		actual, err := mc.GetMarkets(GetMarketsRequest{test.b, int64(test.l)})
+		if err != nil {
+			t.Errorf("error getting markets: %v", err)
+			t.Fail()
+		}
+		if len(*actual) != test.l {
 			t.Errorf("incorrect number of markets retrieved")
 			t.Fail()
 		}
@@ -234,8 +263,12 @@ func TestGetMarketsForGroup(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetMarketsForGroup(test.gi)
-		if len(actual) < 1 {
+		actual, err := mc.GetMarketsForGroup(test.gi)
+		if err != nil {
+			t.Errorf("error getting markets for group: %v", err)
+			t.Fail()
+		}
+		if len(*actual) < 1 {
 			t.Errorf("incorrect number of markets for group")
 			t.Fail()
 		}
@@ -253,7 +286,11 @@ func TestGetUserByID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetUserByID(test.ui)
+		actual, err := mc.GetUserByID(test.ui)
+		if err != nil {
+			t.Errorf("error getting user by id: %v", err)
+			t.Fail()
+		}
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
 			t.Fail()
@@ -272,7 +309,11 @@ func TestGetUserByUsername(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetUserByUsername(test.un)
+		actual, err := mc.GetUserByUsername(test.un)
+		if err != nil {
+			t.Errorf("error getting user by username: %v", err)
+			t.Fail()
+		}
 		if actual.Balance < 1 {
 			t.Errorf("incorrect balance on retrieved user")
 			t.Fail()
@@ -294,8 +335,12 @@ func TestGetUsers(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mc.GetUsers(test.b, test.l)
-		if len(actual) != test.l {
+		actual, err := mc.GetUsers(GetUsersRequest{test.b, int64(test.l)})
+		if err != nil {
+			t.Errorf("error getting users: %v", err)
+			t.Fail()
+		}
+		if len(*actual) != test.l {
 			t.Errorf("incorrect number of users retrieved")
 			t.Fail()
 		}
@@ -344,16 +389,20 @@ func TestGetMarketPositions(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL)
+	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	result := mc.GetMarketPositions("1", "desc", nil, nil, "user1")
-
-	if len(result) != len(expected) {
-		t.Errorf("unexpected result length: got %d, want %d", len(result), len(expected))
+	result, err := mc.GetMarketPositions(GetMarketPositionsRequest{"1", "desc", 0, 100, "user1"})
+	if err != nil {
+		t.Errorf("error getting market positions: %v", err)
+		t.Fail()
 	}
 
-	for i, contract := range result {
+	if len(*result) != len(expected) {
+		t.Errorf("unexpected result length: got %d, want %d", len(*result), len(expected))
+	}
+
+	for i, contract := range *result {
 		b, s := equalContractMetrics(contract, expected[i])
 		if !b {
 			t.Errorf(s)

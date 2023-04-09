@@ -77,29 +77,6 @@ type PostMarketRequest struct {
 	Answers             []string    `json:"answers,omitempty"`
 }
 
-// PostMarketResponse represents the market ID returned by the API
-// after successfully creating a new market.
-type PostMarketResponse struct {
-	Id string `json:"id"`
-}
-
-// liquidityAmount represents the amount of liquidity in a market
-type liquidityAmount struct {
-	Amount int64 `json:"amount"`
-}
-
-// CloseTimestamp represents the closing time of a market,
-// using epoch time.
-type CloseTimestamp struct {
-	CloseTime int64 `json:"closeTime,omitempty"`
-}
-
-// MarketGroupId represents the ID of a group that a market
-// is part of.
-type MarketGroupId struct {
-	GroupId string `json:"groupId,omitempty"`
-}
-
 // ResolveMarketRequest represents the parameters required to resolve a market via the API
 type ResolveMarketRequest struct {
 	Outcome        string       `json:"outcome"`
@@ -188,6 +165,6 @@ type FullMarket struct {
 	ResolutionProbability float64  `json:"resolutionProbability"`
 	LastUpdatedTime       int64    `json:"lastUpdatedTime"`
 	// Description field returns HTML marshalled to JSON, see https://tiptap.dev/guide/output#option-1-json
-	Description     string `json:"description"`
+	// Description     string `json:"description"` TODO: work out how to parse this field
 	TextDescription string `json:"textDescription"`
 }
