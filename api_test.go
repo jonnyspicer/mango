@@ -409,3 +409,276 @@ func TestGetMarketPositions(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchMarkets(t *testing.T) {
+	expected := []FullMarket{
+		{
+			Id:                    "123",
+			CreatorId:             "456",
+			CreatorUsername:       "jonny",
+			CreatorName:           "Jonny",
+			CreatedTime:           0,
+			CreatorAvatarUrl:      "https://127.0.0.1",
+			CloseTime:             1,
+			Question:              "How much wood would a woodchuck chuck of a woodchuck could chuck wood?",
+			Answers:               nil,
+			Tags:                  nil,
+			Url:                   "",
+			Pool:                  Pool{},
+			Probability:           50,
+			P:                     0,
+			TotalLiquidity:        0,
+			OutcomeType:           Binary,
+			Mechanism:             "dpm-2",
+			Volume:                10000,
+			Volume24Hours:         10000,
+			IsResolved:            false,
+			Resolution:            "",
+			ResolutionTime:        0,
+			ResolutionProbability: 0,
+			LastUpdatedTime:       2,
+			TextDescription:       "Will resolve based on some totally arbitrary criteria I pick at resolution time",
+		},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.SearchMarkets("apple", "banana", "celery", "damson")
+	if err != nil {
+		t.Errorf("error searching markets: %v", err)
+		t.Fail()
+	}
+
+	if len(*result) != len(expected) {
+		t.Errorf("unexpected result length: got %d, want %d", len(*result), len(expected))
+	}
+
+	for i, market := range *result {
+		b, s := equalFullMarkets(market, expected[i])
+		if !b {
+			t.Errorf(s)
+		}
+	}
+}
+
+func TestPostBet(t *testing.T) {
+	pbr := PostBetRequest{
+		Amount:     10,
+		ContractId: "abc123",
+		Outcome:    "YES",
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.PostBet(pbr)
+	if err != nil {
+		t.Errorf("error posting bet: %v", err)
+		t.Fail()
+	}
+}
+
+func TestCancelBet(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.CancelBet("123abc")
+	if err != nil {
+		t.Errorf("error cancelling bet: %v", err)
+		t.Fail()
+	}
+}
+
+func TestCreateMarket(t *testing.T) {
+	pmr := PostMarketRequest{
+		OutcomeType:         Binary,
+		Question:            "How much wood would a woodchuck chuck of a woodchuck could chuck wood?",
+		Description:         "Will resolve based on some totally arbitrary criteria I pick at resolution time",
+		DescriptionHtml:     "",
+		DescriptionMarkdown: "",
+		CloseTime:           1,
+		Visibility:          "",
+		GroupId:             "",
+		InitialProb:         1,
+		Min:                 0,
+		Max:                 10,
+		IsLogScale:          false,
+		InitialVal:          0,
+		Answers:             nil,
+	}
+
+	expected := marketIdResponse{Id: "123marketId"}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	resp, err := mc.CreateMarket(pmr)
+	if err != nil {
+		t.Errorf("error creating market: %v", err)
+		t.Fail()
+	}
+
+	if *resp != expected.Id {
+		t.Errorf("market ID responses don't match, got: %v expected: %v", *resp, expected)
+		t.Fail()
+	}
+}
+
+func TestAddLiquidity(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.AddLiquidity("123marketid", 9999)
+	if err != nil {
+		t.Errorf("error adding liquidity: %v", err)
+		t.Fail()
+	}
+}
+
+func TestCloseMarket(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.CloseMarket("123marketid", nil)
+	if err != nil {
+		t.Errorf("error closing market: %v", err)
+		t.Fail()
+	}
+}
+
+func TestAddMarketToGroup(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.AddMarketToGroup("123marketid", "123groupid")
+	if err != nil {
+		t.Errorf("error adding market to group: %v", err)
+		t.Fail()
+	}
+}
+
+func TestResolveMarket(t *testing.T) {
+	rmr := ResolveMarketRequest{
+		Outcome:        "YES",
+		Resolutions:    nil,
+		ProbabilityInt: 0,
+		Value:          0,
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.ResolveMarket("123marketid", rmr)
+	if err != nil {
+		t.Errorf("error resolving market: %v", err)
+		t.Fail()
+	}
+}
+
+func TestSellShares(t *testing.T) {
+	ssr := SellSharesRequest{
+		Outcome: "YES",
+		Shares:  10000,
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.SellShares("123marketid", ssr)
+	if err != nil {
+		t.Errorf("error selling shares: %v", err)
+		t.Fail()
+	}
+}
+
+func TestPostComment(t *testing.T) {
+	pcr := PostCommentRequest{
+		ContractId: "123contractid",
+		Content:    "insert snarky comment here",
+		Html:       "",
+		Markdown:   "",
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.PostComment("123marketid", pcr)
+	if err != nil {
+		t.Errorf("error posting comment: %v", err)
+		t.Fail()
+	}
+}

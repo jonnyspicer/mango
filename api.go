@@ -385,8 +385,8 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 // See [the Manifold API docs for POST /v0/bet] for more details.
 //
 // [the Manifold API docs for POST /v0/bet]: https://docs.manifold.markets/api#post-v0bet
-func (mc *Client) PostBet(br PostBetRequest) error {
-	jsonBody, err := json.Marshal(br)
+func (mc *Client) PostBet(pbr PostBetRequest) error {
+	jsonBody, err := json.Marshal(pbr)
 	if err != nil {
 		return fmt.Errorf("error making http request: %v", err)
 	}
@@ -462,9 +462,9 @@ func (mc *Client) CancelBet(betId string) error {
 // See [the Manifold API docs for POST /v0/market] for more details.
 //
 // [the Manifold API docs for POST /v0/market]: https://docs.manifold.markets/api#post-v0market
-func (mc *Client) CreateMarket(mr PostMarketRequest) (*string, error) {
+func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
 	// TODO: add input validation
-	jsonBody, err := json.Marshal(mr)
+	jsonBody, err := json.Marshal(pmr)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -485,19 +485,16 @@ func (mc *Client) CreateMarket(mr PostMarketRequest) (*string, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		// TODO: print the response body here too
 		return nil, fmt.Errorf("market creation failed with status %d", resp.StatusCode)
 	}
 
-	defer resp.Body.Close()
-
-	marketResp := struct {
-		id string `json:"id"`
-	}{}
-	if err = json.NewDecoder(resp.Body).Decode(&marketResp); err != nil {
+	mir, err := parseResponse(resp, marketIdResponse{})
+	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	return &marketResp.id, nil
+	return &mir.Id, nil
 }
 
 // AddLiquidity adds a given amount of liquidity to a given market.
@@ -548,6 +545,10 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 //
 // [the Manifold API docs for POST /v0/market/marketId/close]: https://docs.manifold.markets/api#post-v0marketmarketidclose
 func (mc *Client) CloseMarket(marketId string, ct *int64) error {
+	if ct == nil {
+		ct = new(int64)
+	}
+
 	c := struct {
 		closeTime int64 `json:"closeTime,omitempty"`
 	}{*ct}
@@ -707,8 +708,8 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 // See [the Manifold API docs for POST /v0/comment] for more details.
 //
 // [the Manifold API docs for POST /v0/comment]: https://docs.manifold.markets/api#post-v0comment
-func (mc *Client) PostComment(marketId string, cr PostCommentRequest) error {
-	jsonBody, err := json.Marshal(cr)
+func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
+	jsonBody, err := json.Marshal(pcr)
 	if err != nil {
 		return fmt.Errorf("error making http request: %v", err)
 	}
@@ -762,5 +763,5 @@ func (mc *Client) postRequest(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
 
-	return mc.postRequest(req)
+	return mc.client.Do(req)
 }

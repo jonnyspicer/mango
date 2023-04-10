@@ -23,3 +23,5 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+    with:
+      MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'

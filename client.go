@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Client struct {
@@ -32,7 +33,7 @@ func ClientInstance(client *http.Client, url, ak *string) *Client {
 		if mcInstance == nil {
 			if client == nil {
 				client = &http.Client{
-					Timeout: 10,
+					Timeout: time.Second * 10,
 				}
 			}
 

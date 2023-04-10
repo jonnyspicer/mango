@@ -1,5 +1,10 @@
 package mango
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // OutcomeType represents the different types of markets
 // available on Manifold.
 type OutcomeType string
@@ -61,7 +66,7 @@ type GetMarketsRequest struct {
 
 // PostMarketRequest represents the parameters required to create a new market via the API
 type PostMarketRequest struct {
-	OutcomeType         OutcomeType `json:"OutcomeType"`
+	OutcomeType         OutcomeType `json:"outcomeType"`
 	Question            string      `json:"question"`
 	Description         string      `json:"description,omitempty"`
 	DescriptionHtml     string      `json:"descriptionHtml,omitempty"`
@@ -96,6 +101,14 @@ type Resolution struct {
 type SellSharesRequest struct {
 	Outcome string `json:"outcome,omitempty"`
 	Shares  int64  `json:"shares,omitempty"`
+}
+
+type marketIdResponse struct {
+	Id string `json:"id"`
+}
+
+type Market interface {
+	LiteMarket | FullMarket
 }
 
 // LiteMarket represents a LiteMarket object in the Manifold backend.
@@ -140,31 +153,69 @@ type LiteMarket struct {
 //
 // [the Manifold API docs for GET /v0/market/[marketId]]: https://docs.manifold.markets/api#get-v0marketmarketid
 type FullMarket struct {
-	Id                    string   `json:"id"`
-	CreatorId             string   `json:"creatorId"`
-	CreatorUsername       string   `json:"creatorUsername"`
-	CreatorName           string   `json:"creatorName"`
-	CreatedTime           int64    `json:"createdTime"`
-	CreatorAvatarUrl      string   `json:"creatorAvatarUrl"`
-	CloseTime             int64    `json:"closeTime"`
-	Question              string   `json:"question"`
-	Answers               []Answer `json:"answers,omitempty"`
-	Tags                  []string `json:"tags"`
-	Url                   string   `json:"url"`
-	Pool                  Pool     `json:"pool"`
-	Probability           float64  `json:"probability"`
-	P                     float64  `json:"p"`
-	TotalLiquidity        float64  `json:"totalLiquidity"`
-	OutcomeType           string   `json:"OutcomeType"`
-	Mechanism             string   `json:"mechanism"`
-	Volume                float64  `json:"volume"`
-	Volume24Hours         float64  `json:"volume24Hours"`
-	IsResolved            bool     `json:"isResolved"`
-	Resolution            string   `json:"resolution"`
-	ResolutionTime        int64    `json:"resolutionTime"`
-	ResolutionProbability float64  `json:"resolutionProbability"`
-	LastUpdatedTime       int64    `json:"lastUpdatedTime"`
+	Id                    string      `json:"id"`
+	CreatorId             string      `json:"creatorId"`
+	CreatorUsername       string      `json:"creatorUsername"`
+	CreatorName           string      `json:"creatorName"`
+	CreatedTime           int64       `json:"createdTime"`
+	CreatorAvatarUrl      string      `json:"creatorAvatarUrl"`
+	CloseTime             int64       `json:"closeTime"`
+	Question              string      `json:"question"`
+	Answers               []Answer    `json:"answers,omitempty"`
+	Tags                  []string    `json:"tags"`
+	Url                   string      `json:"url"`
+	Pool                  Pool        `json:"pool"`
+	Probability           float64     `json:"probability"`
+	P                     float64     `json:"p"`
+	TotalLiquidity        float64     `json:"totalLiquidity"`
+	OutcomeType           OutcomeType `json:"OutcomeType"`
+	Mechanism             string      `json:"mechanism"`
+	Volume                float64     `json:"volume"`
+	Volume24Hours         float64     `json:"volume24Hours"`
+	IsResolved            bool        `json:"isResolved"`
+	Resolution            string      `json:"resolution"`
+	ResolutionTime        int64       `json:"resolutionTime"`
+	ResolutionProbability float64     `json:"resolutionProbability"`
+	LastUpdatedTime       int64       `json:"lastUpdatedTime"`
 	// Description field returns HTML marshalled to JSON, see https://tiptap.dev/guide/output#option-1-json
 	// Description     string `json:"description"` TODO: work out how to parse this field
 	TextDescription string `json:"textDescription"`
+}
+
+func equalFullMarkets(m1, m2 FullMarket) (bool, string) {
+	if m1.Id != m2.Id {
+		return false, fmt.Sprintf("Id fields are not equal: got %v expected %v", m1.Id, m2.Id)
+	}
+	if m1.CreatorId != m2.CreatorId {
+		return false, fmt.Sprintf("CreatorId fields are not equal: got %v expected %v", m1.CreatorId, m2.CreatorId)
+	}
+	if m1.CreatorUsername != m2.CreatorUsername {
+		return false, fmt.Sprintf("CreatorUsername fields are not equal: got %v expected %v", m1.CreatorUsername, m2.CreatorUsername)
+	}
+	if m1.CreatorName != m2.CreatorName {
+		return false, fmt.Sprintf("CreatorName fields are not equal: got %v expected %v", m1.CreatorName, m2.CreatorName)
+	}
+	if m1.CreatedTime != m2.CreatedTime {
+		return false, fmt.Sprintf("CreatedTime fields are not equal: got %v expected %v", m1.CreatedTime, m2.CreatedTime)
+	}
+	if m1.CreatorAvatarUrl != m2.CreatorAvatarUrl {
+		return false, fmt.Sprintf("CreatorAvatarUrl fields are not equal: got %v expected %v", m1.CreatorAvatarUrl, m2.CreatorAvatarUrl)
+	}
+	if m1.CloseTime != m2.CloseTime {
+		return false, fmt.Sprintf("CloseTime fields are not equal: got %v expected %v", m1.CloseTime, m2.CloseTime)
+	}
+	if m1.Question != m2.Question {
+		return false, fmt.Sprintf("Question fields are not equal: got %v expected %v", m1.Question, m2.Question)
+	}
+	if !reflect.DeepEqual(m1.Tags, m2.Tags) {
+		return false, fmt.Sprintf("Tags fields are not equal: got %v expected %v", m1.Tags, m2.Tags)
+	}
+	if m1.Url != m2.Url {
+		return false, fmt.Sprintf("Url fields are not equal: got %v expected %v", m1.Url, m2.Url)
+	}
+	if !reflect.DeepEqual(m1.Pool, m2.Pool) {
+		return false, fmt.Sprintf("Pool fields are not equal: got %v expected %v", m1.Pool, m2.Pool)
+	}
+
+	return true, ""
 }
