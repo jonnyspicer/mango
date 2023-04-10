@@ -30,7 +30,7 @@ import (
 //
 // [the Manifold API docs for GET /v0/me]: https://docs.manifold.markets/api#get-v0me
 func (mc *Client) GetAuthenticatedUser() (*User, error) {
-	req, err := http.NewRequest(http.MethodGet, requestURL(mc.url, GetMe, "", ""), nil)
+	req, err := http.NewRequest(http.MethodGet, requestURL(mc.url, getMe, "", ""), nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
@@ -43,7 +43,7 @@ func (mc *Client) GetAuthenticatedUser() (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// GetBets returns a slice of [Bet] and an error. It takes a [GetBetsRequest] which has the following
+// getBets returns a slice of [Bet] and an error. It takes a [GetBetsRequest] which has the following
 // optional parameters:
 //   - [GetBetsRequest.UserId]
 //   - [GetBetsRequest.Username]
@@ -60,11 +60,11 @@ func (mc *Client) GetAuthenticatedUser() (*User, error) {
 // [the Manifold API docs for GET /v0/bets]: https://docs.manifold.markets/api#get-v0bets
 func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 	if gbr.Limit == 0 {
-		gbr.Limit = DefaultLimit
+		gbr.Limit = defaultLimit
 	}
 	resp, err := http.Get(requestURL(
 		mc.url,
-		GetBets, "", "",
+		getBets, "", "",
 		"userId", gbr.UserId,
 		"username", gbr.Username,
 		"contractId", gbr.ContractId,
@@ -79,7 +79,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 	return parseResponse(resp, []Bet{})
 }
 
-// GetComments returns a slice of [Comment] and an error. It takes a [GetCommentsRequest] which has the following
+// getComments returns a slice of [Comment] and an error. It takes a [GetCommentsRequest] which has the following
 // optional parameters:
 //   - [GetCommentsRequest.ContractId]
 //   - [GetCommentsRequest.ContractSlug]
@@ -95,7 +95,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 		return nil, fmt.Errorf("either contractID or contractSlug must be specified")
 	}
 
-	resp, err := http.Get(requestURL(mc.url, GetComments, "", "",
+	resp, err := http.Get(requestURL(mc.url, getComments, "", "",
 		"contractId", gcr.ContractId,
 		"contractSlug", gcr.ContractSlug,
 	))
@@ -115,7 +115,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id]: https://docs.manifold.markets/api#get-v0groupby-idid
 func (mc *Client) GetGroupById(id string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, GetGroupByID, id, ""))
+	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -123,7 +123,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 	return parseResponse(resp, Group{})
 }
 
-// GetGroupBySlug returns a [Group] by its slug.
+// getGroupBySlug returns a [Group] by its slug.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -132,7 +132,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 //
 // [the Manifold API docs for GET /v0/group/slug]: https://docs.manifold.markets/api#get-v0groupslug
 func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, GetGroupBySlug, slug, ""))
+	resp, err := http.Get(requestURL(mc.url, getGroupBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -140,7 +140,7 @@ func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
 	return parseResponse(resp, Group{})
 }
 
-// GetGroups returns a slice of [Group]. Optionally a userId can be passed:
+// getGroups returns a slice of [Group]. Optionally a userId can be passed:
 // in this case, only groups available to the given user will be returned.
 // Results are unordered.
 //
@@ -156,7 +156,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 		uid = *userId
 	}
 	resp, err := http.Get(requestURL(
-		mc.url, GetGroups, "", "",
+		mc.url, getGroups, "", "",
 		"availableToUserId", uid,
 	))
 	if err != nil {
@@ -166,7 +166,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 	return parseResponse(resp, []Group{})
 }
 
-// GetMarketByID returns a [FullMarket] by its unique id.
+// getMarketByID returns a [FullMarket] by its unique id.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -175,7 +175,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 //
 // [the Manifold API docs for GET /v0/market/marketId]: https://docs.manifold.markets/api#get-v0marketmarketid
 func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, GetMarketByID, id, ""))
+	resp, err := http.Get(requestURL(mc.url, getMarketByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -183,7 +183,7 @@ func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
 	return parseResponse(resp, FullMarket{})
 }
 
-// GetMarketBySlug returns a [FullMarket] by its unique slug.
+// getMarketBySlug returns a [FullMarket] by its unique slug.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -192,7 +192,7 @@ func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/slug/marketSlug]: https://docs.manifold.markets/api#get-v0slugmarketslug
 func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, GetMarketBySlug, slug, ""))
+	resp, err := http.Get(requestURL(mc.url, getMarketBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -200,7 +200,7 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 	return parseResponse(resp, FullMarket{})
 }
 
-// GetMarkets returns a slice of [LiteMarket] and an error. It takes a [GetMarketsRequest] which has the following
+// getMarkets returns a slice of [LiteMarket] and an error. It takes a [GetMarketsRequest] which has the following
 // optional parameters:
 //   - [GetMarketsRequest.Before] - the ID of the market before which the list will start.
 //   - [GetMarketsRequest.Limit] - the maximum limit is 1000 and the default is 500.
@@ -213,7 +213,7 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 // [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
 func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 	resp, err := http.Get(requestURL(
-		mc.url, GetMarkets,
+		mc.url, getMarkets,
 		"",
 		"",
 		"limit", strconv.FormatInt(gmr.Limit, 10), "before", gmr.Before,
@@ -234,7 +234,7 @@ func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id/markets]: https://docs.manifold.markets/api#get-v0groupby-ididmarkets
 func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, GetGroupByID, id, MarketsSuffix))
+	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
 	if err != nil {
 		log.Printf("error making http request: %v", err)
 	}
@@ -274,7 +274,7 @@ func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]Contrac
 		b = "null"
 	}
 
-	resp, err := http.Get(requestURL(mc.url, GetMarketByID, gmpr.MarketId, PositionsSuffix,
+	resp, err := http.Get(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
 		"order", gmpr.Order,
 		"top", t,
 		"bottom", b,
@@ -306,7 +306,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 		}
 	}
 
-	resp, err := http.Get(requestURL(mc.url, GetSearchMarkets, "", "",
+	resp, err := http.Get(requestURL(mc.url, getSearchMarkets, "", "",
 		"terms", ts,
 	))
 	if err != nil {
@@ -316,7 +316,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 	return parseResponse(resp, []FullMarket{})
 }
 
-// GetUserByID returns a [User] by user id.
+// getUserByID returns a [User] by user id.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -325,7 +325,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/user/by-id/id]: https://docs.manifold.markets/api#get-v0userby-idid
 func (mc *Client) GetUserByID(id string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, GetUserByID, id, ""))
+	resp, err := http.Get(requestURL(mc.url, getUserByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -333,7 +333,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// GetUserByUsername returns a [User] by username
+// getUserByUsername returns a [User] by username
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -342,7 +342,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 //
 // [the Manifold API docs for GET /v0/user/username]: https://docs.manifold.markets/api#get-v0userusername
 func (mc *Client) GetUserByUsername(un string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, GetUserByUsername, un, ""))
+	resp, err := http.Get(requestURL(mc.url, getUserByUsername, un, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -350,7 +350,7 @@ func (mc *Client) GetUserByUsername(un string) (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// GetUsers returns a slice of [User] and an error. It takes a [GetUsersRequest] which has the following parameters:
+// getUsers returns a slice of [User] and an error. It takes a [GetUsersRequest] which has the following parameters:
 //   - [GetUsersRequest.Before] - Optional. The ID of the user before which the list will start.
 //   - [GetUsersRequest.Limit] - Optional. The default and maximum limit is 1000.
 //
@@ -362,7 +362,7 @@ func (mc *Client) GetUserByUsername(un string) (*User, error) {
 // [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
 func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 	resp, err := http.Get(requestURL(
-		mc.url, GetUsers,
+		mc.url, getUsers,
 		"",
 		"",
 		"limit", strconv.FormatInt(gur.Limit, 10), "before", gur.Before,
@@ -374,7 +374,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 	return parseResponse(resp, []User{})
 }
 
-// PostBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
+// postBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
 //   - [PostBetRequest.Amount] - Required.
 //   - [PostBetRequest.ContractId] - Required.
 //   - [PostBetRequest.Outcome] - Required.
@@ -394,7 +394,7 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostBet,
+		mc.url, postBet,
 		"",
 		""), bodyReader)
 	if err != nil {
@@ -422,7 +422,7 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 // [the Manifold API docs for POST /v0/bet/cancel/id]: https://docs.manifold.markets/api#post-v0betcancelid
 func (mc *Client) CancelBet(betId string) error {
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostCancellation,
+		mc.url, postCancellation,
 		betId,
 		""), nil)
 	if err != nil {
@@ -472,7 +472,7 @@ func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		"",
 		""), bodyReader)
 	if err != nil {
@@ -517,9 +517,9 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		marketId,
-		LiquiditySuffix), bodyReader)
+		liquiditySuffix), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
@@ -561,9 +561,9 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		marketId,
-		ClosureSuffix), bodyReader)
+		closureSuffix), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
@@ -600,9 +600,9 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		marketId,
-		GroupSuffix), bodyReader)
+		groupSuffix), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
@@ -641,9 +641,9 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		marketId,
-		ResolutionSuffix), bodyReader)
+		resolutionSuffix), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
@@ -678,9 +678,9 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostMarket,
+		mc.url, postMarket,
 		marketId,
-		SellSuffix), bodyReader)
+		sellSuffix), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
@@ -697,7 +697,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	return nil
 }
 
-// PostComment makes a new bet on a market. It takes a [PostCommentRequest] which has the following parameters:
+// postComment makes a new bet on a market. It takes a [PostCommentRequest] which has the following parameters:
 //   - [PostCommentRequest.ContractId] - Required.
 //   - [PostCommentRequest.Content] - Optional. A plaintext string.
 //   - [PostCommentRequest.Html] - Optional.
@@ -717,7 +717,7 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
-		mc.url, PostComment,
+		mc.url, postComment,
 		marketId,
 		""), bodyReader)
 	if err != nil {

@@ -58,7 +58,7 @@ func TestGetBets(t *testing.T) {
 		ui, un, ci, cs, b string
 		l                 int64
 	}{
-		{"", "", "", "", "", DefaultLimit},
+		{"", "", "", "", "", defaultLimit},
 		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", "", "", "", "", 10},
 		{"", "jonny", "", "", "", 10},
 		{"", "", "5BOGaVlxLaZt6sdPSUkn", "", "", 10},
@@ -235,8 +235,8 @@ func TestGetMarkets(t *testing.T) {
 		l int
 	}{
 		{"4QTb4cANeQzXNQS9lZnn", 10},
-		{"4QTb4cANeQzXNQS9lZnn", DefaultLimit},
-		{"", DefaultLimit},
+		{"4QTb4cANeQzXNQS9lZnn", defaultLimit},
+		{"", defaultLimit},
 	}
 
 	for _, test := range tests {
@@ -330,8 +330,8 @@ func TestGetUsers(t *testing.T) {
 		l int
 	}{
 		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", 10},
-		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", DefaultLimit},
-		{"", DefaultLimit},
+		{"xN67Q0mAhddL0X9wVYP2YfOrYH42", defaultLimit},
+		{"", defaultLimit},
 	}
 
 	for _, test := range tests {

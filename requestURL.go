@@ -14,7 +14,7 @@ func requestURL(base, path, value, suffix string, params ...string) string {
 		return ""
 	}
 
-	query, err := url.Parse(base + "/" + Version)
+	query, err := url.Parse(base + "/" + version)
 	if err != nil {
 		log.Fatalf("error parsing base URL: %v", err)
 	}

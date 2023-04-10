@@ -17,7 +17,7 @@ type GetUsersRequest struct {
 	Limit  int64  `json:"limit,omitempty"`
 }
 
-// User represents a User object in the Manifold backend.//
+// User represents a User object in the Manifold backend.
 //
 // This type isn't documented by Manifold and its structure was inferred from API calls.
 type User struct {

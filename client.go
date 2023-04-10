@@ -38,7 +38,7 @@ func ClientInstance(client *http.Client, url, ak *string) *Client {
 			}
 
 			if url == nil {
-				u := Base
+				u := base
 				url = &u
 			}
 
