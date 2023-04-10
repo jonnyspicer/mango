@@ -13,12 +13,14 @@ See the [Manifold API docs](https://docs.manifold.markets/api) for more details.
 ## Usage
 
 Mango offers custom structs representing different data structures used by Manifold, as well as methods to call the Manifold API and retrieve those objects.
-Full documentation is available on [pkg.go.dev](https://pkg.go.dev/github.com/jonnyspicer/mango#section-documentation)
+
 
 In order for some functions to work correctly, you will need to have a `MANIFOLD_API_KEY` set in the
 `.env` file in the root of your project. Your key can be found on the edit profile screen in the Manifold UI.
 
 ### Basics
+
+Full documentation, including all available functions and types, is available on [pkg.go.dev](https://pkg.go.dev/github.com/jonnyspicer/mango#section-documentation).
 
 Get information about the currently authenticated user:
 
