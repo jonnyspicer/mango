@@ -1,4 +1,4 @@
-# Mango
+# Mango 🥭
 
 Mango is a Go library for interacting with [Manifold Markets.](https://manifold.markets) It provides wrapper functions 
 for every documented API call that Manifold offers. It also offers data types representing each data structure 

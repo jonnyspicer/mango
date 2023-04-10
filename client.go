@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Client represents the main Mango client, used to make requests to the Manifold API
 type Client struct {
 	client http.Client
 	key    string
