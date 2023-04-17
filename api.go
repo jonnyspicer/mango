@@ -203,7 +203,7 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 // getMarkets returns a slice of [LiteMarket] and an error. It takes a [GetMarketsRequest] which has the following
 // optional parameters:
 //   - [GetMarketsRequest.Before] - the ID of the market before which the list will start.
-//   - [GetMarketsRequest.Limit] - the maximum limit is 1000 and the default is 500.
+//   - [GetMarketsRequest.Limit] - the maximum and default limit is 1000.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -212,6 +212,10 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
 func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
+	if gmr.Limit == 0 {
+		gmr.Limit = defaultLimit
+	}
+
 	resp, err := http.Get(requestURL(
 		mc.url, getMarkets,
 		"",
@@ -361,6 +365,10 @@ func (mc *Client) GetUserByUsername(un string) (*User, error) {
 //
 // [the Manifold API docs for GET /v0/markets]: https://docs.manifold.markets/api#get-v0markets
 func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
+	if gur.Limit == 0 {
+		gur.Limit = defaultLimit
+	}
+
 	resp, err := http.Get(requestURL(
 		mc.url, getUsers,
 		"",
