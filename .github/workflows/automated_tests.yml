@@ -14,6 +14,9 @@ jobs:
         MANIFOLD_API_KEY: ${{ secrets.MANIFOLD_API_KEY }}
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Display Secret Value
+        run: echo $MANIFOLD_API_KEY
 
       - name: Set up Go
         uses: actions/setup-go@v3
