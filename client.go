@@ -86,6 +86,9 @@ func apiKey() string {
 	if err != nil {             // Handle errors reading the config file
 		fmt.Errorf("fatal error config file: %w", err)
 	}
+	
+	viper.SetEnvPrefix("MANIFOLD")
+	viper.AutomaticEnv()
 
 	return viper.GetString("MANIFOLD_API_KEY")
 }
