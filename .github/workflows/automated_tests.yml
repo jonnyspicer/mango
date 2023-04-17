@@ -20,8 +20,10 @@ jobs:
 
       - name: Build
         run: go build -v ./...
+        with:
+          MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
 
       - name: Test
         run: go test -v ./...
-    with:
-      MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
+        with:
+          MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
