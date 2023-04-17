@@ -10,6 +10,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    env:
+        MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
     steps:
       - uses: actions/checkout@v3
 
@@ -20,10 +22,6 @@ jobs:
 
       - name: Build
         run: go build -v ./...
-        with:
-          MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
 
       - name: Test
         run: go test -v ./...
-        with:
-          MANIFOLD_API_KEY: '${{ secrets.MANIFOLD_API_KEY }}'
