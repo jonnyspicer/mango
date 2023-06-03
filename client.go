@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -78,18 +79,21 @@ func (mc *Client) Destroy() {
 }
 
 func apiKey() string {
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
+	v := viper.New()
+	v.SetConfigName(".env")
+	v.SetConfigType("env")
+	v.AddConfigPath(".")
 
-	err := viper.ReadInConfig() // Find and read the config file
+	err := v.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		fmt.Errorf("fatal error config file: %w", err)
 	}
 
-	viper.SetEnvPrefix("MANIFOLD")
-	viper.BindEnv("api_key")
-	viper.AutomaticEnv()
+	if mak := v.GetString("MANIFOLD_API_KEY"); mak != "" {
+		return mak
+	}
 
-	return viper.GetString("MANIFOLD_API_KEY")
+	fmt.Println("No value for MANIFOLD_API_KEY found in .env file, falling back to env vars")
+
+	return os.Getenv("MANIFOLD_API_KEY")
 }

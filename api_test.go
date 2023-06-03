@@ -2,17 +2,13 @@ package mango
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
 // TODO: extract non-deterministic tests out as e2e tests, replace them with deterministic unit tests
 func TestGetAuthenticatedUser(t *testing.T) {
-	fmt.Print(os.Environ())
-
 	expected := User{
 		Id:            "igi2zGXsfxYPgB0DJTXVJVmwCOr2",
 		CreatedTime:   1639011767273,
