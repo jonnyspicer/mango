@@ -43,7 +43,7 @@ func (mc *Client) GetAuthenticatedUser() (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// getBets returns a slice of [Bet] and an error. It takes a [GetBetsRequest] which has the following
+// GetBets returns a slice of [Bet] and an error. It takes a [GetBetsRequest] which has the following
 // optional parameters:
 //   - [GetBetsRequest.UserId]
 //   - [GetBetsRequest.Username]
@@ -79,7 +79,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 	return parseResponse(resp, []Bet{})
 }
 
-// getComments returns a slice of [Comment] and an error. It takes a [GetCommentsRequest] which has the following
+// GetComments returns a slice of [Comment] and an error. It takes a [GetCommentsRequest] which has the following
 // optional parameters:
 //   - [GetCommentsRequest.ContractId]
 //   - [GetCommentsRequest.ContractSlug]
@@ -123,7 +123,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 	return parseResponse(resp, Group{})
 }
 
-// getGroupBySlug returns a [Group] by its slug.
+// GetGroupBySlug returns a [Group] by its slug.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -140,7 +140,7 @@ func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
 	return parseResponse(resp, Group{})
 }
 
-// getGroups returns a slice of [Group]. Optionally a userId can be passed:
+// GetGroups returns a slice of [Group]. Optionally a userId can be passed:
 // in this case, only groups available to the given user will be returned.
 // Results are unordered.
 //
@@ -166,7 +166,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 	return parseResponse(resp, []Group{})
 }
 
-// getMarketByID returns a [FullMarket] by its unique id.
+// GetMarketByID returns a [FullMarket] by its unique id.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -183,7 +183,7 @@ func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
 	return parseResponse(resp, FullMarket{})
 }
 
-// getMarketBySlug returns a [FullMarket] by its unique slug.
+// GetMarketBySlug returns a [FullMarket] by its unique slug.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -200,7 +200,7 @@ func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
 	return parseResponse(resp, FullMarket{})
 }
 
-// getMarkets returns a slice of [LiteMarket] and an error. It takes a [GetMarketsRequest] which has the following
+// GetMarkets returns a slice of [LiteMarket] and an error. It takes a [GetMarketsRequest] which has the following
 // optional parameters:
 //   - [GetMarketsRequest.Before] - the ID of the market before which the list will start.
 //   - [GetMarketsRequest.Limit] - the maximum and default limit is 1000.
@@ -320,7 +320,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 	return parseResponse(resp, []FullMarket{})
 }
 
-// getUserByID returns a [User] by user id.
+// GetUserByID returns a [User] by user id.
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -337,7 +337,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// getUserByUsername returns a [User] by username
+// GetUserByUsername returns a [User] by username
 //
 // If there is an error making the request, then nil and an error
 // will be returned.
@@ -354,7 +354,7 @@ func (mc *Client) GetUserByUsername(un string) (*User, error) {
 	return parseResponse(resp, User{})
 }
 
-// getUsers returns a slice of [User] and an error. It takes a [GetUsersRequest] which has the following parameters:
+// GetUsers returns a slice of [User] and an error. It takes a [GetUsersRequest] which has the following parameters:
 //   - [GetUsersRequest.Before] - Optional. The ID of the user before which the list will start.
 //   - [GetUsersRequest.Limit] - Optional. The default and maximum limit is 1000.
 //
@@ -382,7 +382,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 	return parseResponse(resp, []User{})
 }
 
-// postBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
+// PostBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
 //   - [PostBetRequest.Amount] - Required.
 //   - [PostBetRequest.ContractId] - Required.
 //   - [PostBetRequest.Outcome] - Required.
@@ -705,7 +705,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	return nil
 }
 
-// postComment makes a new bet on a market. It takes a [PostCommentRequest] which has the following parameters:
+// PostComment makes a new bet on a market. It takes a [PostCommentRequest] which has the following parameters:
 //   - [PostCommentRequest.ContractId] - Required.
 //   - [PostCommentRequest.Content] - Optional. A plaintext string.
 //   - [PostCommentRequest.Html] - Optional.

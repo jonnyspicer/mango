@@ -37,6 +37,9 @@ const groupSuffix = "/group/"
 const resolutionSuffix = "/resolve/"
 const sellSuffix = "/sell/"
 
+const manifoldConstantsUrl string = "https://github.com/manifoldmarkets/manifold/blob/main/common/src/envs/constants.ts"
+const manifoldLeaderboards string = "https://manifold.markets/leaderboards"
+
 // requestURL returns a fully-formed URL that HTTP requests can be sent to.
 // It includes the base domain, path, and any query parameters supplied.
 func requestURL(base, path, value, suffix string, params ...string) string {

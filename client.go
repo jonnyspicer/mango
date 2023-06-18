@@ -85,7 +85,7 @@ func apiKey() string {
 	v.AddConfigPath(".")
 
 	err := v.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
+	if err != nil {         // Handle errors reading the config file
 		fmt.Errorf("fatal error config file: %w", err)
 	}
 

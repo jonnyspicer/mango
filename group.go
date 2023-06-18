@@ -6,16 +6,16 @@ type PinnedItem struct {
 	Type   string `json:"type"`
 }
 
-// Leader represents the leader of a [Group].
-type Leader struct {
+// GroupLeader represents the leader of a [Group].
+type GroupLeader struct {
 	UserId string  `json:"userId"`
 	Score  float64 `json:"score"`
 }
 
 // CachedLeaderboard represents the leaderboard os a [Group]
 type CachedLeaderboard struct {
-	TopTraders  []Leader `json:"topTraders"`
-	TopCreators []Leader `json:"topCreators"`
+	TopTraders  []GroupLeader `json:"topTraders"`
+	TopCreators []GroupLeader `json:"topCreators"`
 }
 
 // Group represents a Group object in the Manifold backend.
