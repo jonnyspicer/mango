@@ -33,6 +33,7 @@ type GetBetsRequest struct {
 	ContractSlug string `json:"contractSlug,omitempty"`
 	Before       string `json:"before,omitempty"`
 	Limit        int64  `json:"limit,omitempty"`
+	Kinds        string `json:"kinds,omitempty"`
 }
 
 // PostMultiBetRequest represents the parameters for placing multiple YES bets

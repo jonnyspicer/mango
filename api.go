@@ -66,6 +66,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 		"contractSlug", gbr.ContractSlug,
 		"before", gbr.Before,
 		"limit", strconv.FormatInt(gbr.Limit, 10),
+		"kinds", gbr.Kinds,
 	))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
