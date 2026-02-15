@@ -35,6 +35,16 @@ type GetBetsRequest struct {
 	Limit        int64  `json:"limit,omitempty"`
 }
 
+// PostMultiBetRequest represents the parameters for placing multiple YES bets
+// on a multiple choice market.
+type PostMultiBetRequest struct {
+	ContractId string   `json:"contractId"`
+	AnswerIds  []string `json:"answerIds"`
+	Amount     float64  `json:"amount"`
+	LimitProb  *float64 `json:"limitProb,omitempty"`
+	ExpiresAt  *int64   `json:"expiresAt,omitempty"`
+}
+
 // Bet represents a Bet object in the Manifold backend.
 //
 // See [the Manifold API docs for GET /v0/bets] for more details

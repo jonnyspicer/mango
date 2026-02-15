@@ -315,6 +315,41 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 	return parseResponse(resp, []FullMarket{})
 }
 
+// GetMarketProb returns the current probability for a market.
+// For binary markets, the Prob field is set.
+// For non-binary markets, the AnswerProbs map is set.
+func (mc *Client) GetMarketProb(marketId string) (*MarketProb, error) {
+	resp, err := mc.getRequest(requestURL(mc.url, getMarketByID, marketId, probSuffix))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, MarketProb{})
+}
+
+// GetMarketProbs returns probabilities for multiple markets at once.
+// Takes a slice of market IDs (max 100).
+func (mc *Client) GetMarketProbs(ids []string) (*map[string]MarketProb, error) {
+	if len(ids) == 0 {
+		return nil, fmt.Errorf("at least one market ID is required")
+	}
+	if len(ids) > 100 {
+		return nil, fmt.Errorf("maximum 100 market IDs allowed, got %d", len(ids))
+	}
+
+	params := make([]string, 0, len(ids)*2)
+	for _, id := range ids {
+		params = append(params, "ids", id)
+	}
+
+	resp, err := mc.getRequest(requestURL(mc.url, getMarketProbs, "", "", params...))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, map[string]MarketProb{})
+}
+
 // GetUserByID returns a [User] by user id.
 //
 // If there is an error making the request, then nil and an error
@@ -395,6 +430,31 @@ func (mc *Client) GetUserByIDLite(id string) (*DisplayUser, error) {
 	}
 
 	return parseResponse(resp, DisplayUser{})
+}
+
+// GetUserPortfolio returns a user's current [LivePortfolioMetrics].
+func (mc *Client) GetUserPortfolio(userId string) (*LivePortfolioMetrics, error) {
+	resp, err := mc.getRequest(requestURL(mc.url, getUserPortfolio, "", "",
+		"userId", userId,
+	))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, LivePortfolioMetrics{})
+}
+
+// GetUserPortfolioHistory returns a slice of [PortfolioMetrics] for a user over a given period.
+func (mc *Client) GetUserPortfolioHistory(userId string, period PortfolioPeriod) (*[]PortfolioMetrics, error) {
+	resp, err := mc.getRequest(requestURL(mc.url, getUserPortfolioHistory, "", "",
+		"userId", userId,
+		"period", string(period),
+	))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, []PortfolioMetrics{})
 }
 
 // PostBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
@@ -753,6 +813,31 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("posting comment failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
+	}
+
+	return nil
+}
+
+// PostMultiBet places multiple YES bets on answers in a multiple choice market.
+func (mc *Client) PostMultiBet(req PostMultiBetRequest) error {
+	jsonBody, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("error marshalling request body: %v", err)
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPost, requestURL(
+		mc.url, postMultiBet, "", ""), bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("error creating http request: %v", err)
+	}
+
+	resp, err := mc.doRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("error making http request: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("multi-bet placement failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil

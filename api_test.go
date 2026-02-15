@@ -762,6 +762,31 @@ func TestAddMarketToGroupSendsBody(t *testing.T) {
 	}
 }
 
+func TestPostMultiBet(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]map[string]interface{}{
+			{"betId": "bet1", "betGroupId": "bg1"},
+			{"betId": "bet2", "betGroupId": "bg1"},
+		})
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.PostMultiBet(PostMultiBetRequest{
+		ContractId: "contract123",
+		AnswerIds:  []string{"ans1", "ans2"},
+		Amount:     10,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestGetMarketProb(t *testing.T) {
 	expected := MarketProb{Prob: 0.75}
 
@@ -783,5 +808,37 @@ func TestGetMarketProb(t *testing.T) {
 
 	if result.Prob != 0.75 {
 		t.Errorf("expected prob 0.75, got %f", result.Prob)
+	}
+}
+
+func TestGetUserPortfolio(t *testing.T) {
+	expected := LivePortfolioMetrics{
+		InvestmentValue: 5000.0,
+		Balance:         1000.0,
+		UserId:          "user123",
+		DailyProfit:     50.0,
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("userId") != "user123" {
+			t.Errorf("expected userId query param 'user123', got '%s'", r.URL.Query().Get("userId"))
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetUserPortfolio("user123")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.UserId != expected.UserId || result.Balance != expected.Balance {
+		t.Errorf("got %+v, want %+v", *result, expected)
 	}
 }
