@@ -160,6 +160,24 @@ type FullMarket struct {
 	TextDescription string `json:"textDescription"`
 }
 
+// MarketProb represents the probability/probabilities for a market.
+type MarketProb struct {
+	Prob        float64            `json:"prob,omitempty"`
+	AnswerProbs map[string]float64 `json:"answerProbs,omitempty"`
+}
+
+// SearchMarketsRequest represents the parameters for searching markets.
+type SearchMarketsRequest struct {
+	Term         string `json:"term,omitempty"`
+	Sort         string `json:"sort,omitempty"`
+	Filter       string `json:"filter,omitempty"`
+	ContractType string `json:"contractType,omitempty"`
+	TopicSlug    string `json:"topicSlug,omitempty"`
+	CreatorId    string `json:"creatorId,omitempty"`
+	Limit        int64  `json:"limit,omitempty"`
+	Offset       int64  `json:"offset,omitempty"`
+}
+
 func equalFullMarkets(m1, m2 FullMarket) (bool, string) {
 	if m1.Id != m2.Id {
 		return false, fmt.Sprintf("Id fields are not equal: got %v expected %v", m1.Id, m2.Id)
