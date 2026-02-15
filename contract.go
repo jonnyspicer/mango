@@ -127,3 +127,19 @@ func equalContractMetrics(cm1, cm2 ContractMetric) (bool, string) {
 	// If all fields are equal, the objects are equal
 	return true, ""
 }
+
+// GetUserContractMetricsRequest represents the parameters for fetching user contract metrics.
+type GetUserContractMetricsRequest struct {
+	UserId    string `json:"userId"`
+	Limit     int64  `json:"limit"`
+	Offset    int64  `json:"offset,omitempty"`
+	Order     string `json:"order,omitempty"`
+	PerAnswer bool   `json:"perAnswer,omitempty"`
+}
+
+// UserContractMetricsResponse contains contract metrics grouped by contract ID
+// alongside the full contract objects.
+type UserContractMetricsResponse struct {
+	MetricsByContract map[string][]ContractMetric `json:"metricsByContract"`
+	Contracts         []FullMarket                `json:"contracts"`
+}
