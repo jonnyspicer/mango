@@ -30,12 +30,7 @@ import (
 //
 // [the Manifold API docs for GET /v0/me]: https://docs.manifold.markets/api#get-v0me
 func (mc *Client) GetAuthenticatedUser() (*User, error) {
-	req, err := http.NewRequest(http.MethodGet, requestURL(mc.url, getMe, "", ""), nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating http request: %v", err)
-	}
-
-	resp, err := mc.postRequest(req)
+	resp, err := mc.getRequest(requestURL(mc.url, getMe, "", ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -62,7 +57,7 @@ func (mc *Client) GetBets(gbr GetBetsRequest) (*[]Bet, error) {
 	if gbr.Limit == 0 {
 		gbr.Limit = defaultLimit
 	}
-	resp, err := http.Get(requestURL(
+	resp, err := mc.getRequest(requestURL(
 		mc.url,
 		getBets, "", "",
 		"userId", gbr.UserId,
@@ -95,7 +90,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 		return nil, fmt.Errorf("either contractID or contractSlug must be specified")
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getComments, "", "",
+	resp, err := mc.getRequest(requestURL(mc.url, getComments, "", "",
 		"contractId", gcr.ContractId,
 		"contractSlug", gcr.ContractSlug,
 	))
@@ -115,7 +110,7 @@ func (mc *Client) GetComments(gcr GetCommentsRequest) (*[]Comment, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id]: https://docs.manifold.markets/api#get-v0groupby-idid
 func (mc *Client) GetGroupById(id string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getGroupByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -132,7 +127,7 @@ func (mc *Client) GetGroupById(id string) (*Group, error) {
 //
 // [the Manifold API docs for GET /v0/group/slug]: https://docs.manifold.markets/api#get-v0groupslug
 func (mc *Client) GetGroupBySlug(slug string) (*Group, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupBySlug, slug, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getGroupBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -155,7 +150,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 	if userId != nil {
 		uid = *userId
 	}
-	resp, err := http.Get(requestURL(
+	resp, err := mc.getRequest(requestURL(
 		mc.url, getGroups, "", "",
 		"availableToUserId", uid,
 	))
@@ -175,7 +170,7 @@ func (mc *Client) GetGroups(userId *string) (*[]Group, error) {
 //
 // [the Manifold API docs for GET /v0/market/marketId]: https://docs.manifold.markets/api#get-v0marketmarketid
 func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getMarketByID, id, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getMarketByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -192,7 +187,7 @@ func (mc *Client) GetMarketByID(id string) (*FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/slug/marketSlug]: https://docs.manifold.markets/api#get-v0slugmarketslug
 func (mc *Client) GetMarketBySlug(slug string) (*FullMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getMarketBySlug, slug, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getMarketBySlug, slug, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -216,7 +211,7 @@ func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 		gmr.Limit = defaultLimit
 	}
 
-	resp, err := http.Get(requestURL(
+	resp, err := mc.getRequest(requestURL(
 		mc.url, getMarkets,
 		"",
 		"",
@@ -238,7 +233,7 @@ func (mc *Client) GetMarkets(gmr GetMarketsRequest) (*[]LiteMarket, error) {
 //
 // [the Manifold API docs for GET /v0/group/by-id/id/markets]: https://docs.manifold.markets/api#get-v0groupby-ididmarkets
 func (mc *Client) GetMarketsForGroup(id string) (*[]LiteMarket, error) {
-	resp, err := http.Get(requestURL(mc.url, getGroupByID, id, marketsSuffix))
+	resp, err := mc.getRequest(requestURL(mc.url, getGroupByID, id, marketsSuffix))
 	if err != nil {
 		log.Printf("error making http request: %v", err)
 	}
@@ -278,7 +273,7 @@ func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]Contrac
 		b = "null"
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
+	resp, err := mc.getRequest(requestURL(mc.url, getMarketByID, gmpr.MarketId, positionsSuffix,
 		"order", gmpr.Order,
 		"top", t,
 		"bottom", b,
@@ -310,7 +305,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 		}
 	}
 
-	resp, err := http.Get(requestURL(mc.url, getSearchMarkets, "", "",
+	resp, err := mc.getRequest(requestURL(mc.url, getSearchMarkets, "", "",
 		"terms", ts,
 	))
 	if err != nil {
@@ -329,7 +324,7 @@ func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
 //
 // [the Manifold API docs for GET /v0/user/by-id/id]: https://docs.manifold.markets/api#get-v0userby-idid
 func (mc *Client) GetUserByID(id string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, getUserByID, id, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getUserByID, id, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -346,7 +341,7 @@ func (mc *Client) GetUserByID(id string) (*User, error) {
 //
 // [the Manifold API docs for GET /v0/user/username]: https://docs.manifold.markets/api#get-v0userusername
 func (mc *Client) GetUserByUsername(un string) (*User, error) {
-	resp, err := http.Get(requestURL(mc.url, getUserByUsername, un, ""))
+	resp, err := mc.getRequest(requestURL(mc.url, getUserByUsername, un, ""))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)
 	}
@@ -369,7 +364,7 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 		gur.Limit = defaultLimit
 	}
 
-	resp, err := http.Get(requestURL(
+	resp, err := mc.getRequest(requestURL(
 		mc.url, getUsers,
 		"",
 		"",
@@ -409,7 +404,7 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -437,7 +432,7 @@ func (mc *Client) CancelBet(betId string) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -487,7 +482,7 @@ func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
 		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -532,7 +527,7 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -576,7 +571,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -615,7 +610,7 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -656,7 +651,7 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -693,7 +688,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -732,7 +727,7 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 		return fmt.Errorf("error creating http request: %v", err)
 	}
 
-	resp, err := mc.postRequest(req)
+	resp, err := mc.doRequest(req)
 	if err != nil {
 		return fmt.Errorf("client: error making http request: %v", err)
 	}
@@ -763,12 +758,25 @@ func parseResponse[S any](r *http.Response, s S) (*S, error) {
 	return &s, nil
 }
 
-func (mc *Client) postRequest(req *http.Request) (*http.Response, error) {
+func (mc *Client) doRequest(req *http.Request) (*http.Response, error) {
 	if mc.key == "" {
 		return nil, fmt.Errorf("no API key found")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
+
+	return mc.client.Do(req)
+}
+
+// getRequest makes an authenticated GET request to the given URL.
+// Unlike http.Get(), this sends the Authorization header and uses the client's timeout.
+func (mc *Client) getRequest(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating http request: %v", err)
+	}
+
 	req.Header.Set("Authorization", fmt.Sprintf("Key %v", mc.key))
 
 	return mc.client.Do(req)
