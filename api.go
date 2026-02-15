@@ -410,7 +410,7 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bet placement failed with status %d", resp.StatusCode)
+		return fmt.Errorf("bet placement failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -438,7 +438,7 @@ func (mc *Client) CancelBet(betId string) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bet cancellation failed with status %d", resp.StatusCode)
+		return fmt.Errorf("bet cancellation failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -488,8 +488,7 @@ func (mc *Client) CreateMarket(pmr PostMarketRequest) (*string, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		// TODO: print the response body here too
-		return nil, fmt.Errorf("market creation failed with status %d", resp.StatusCode)
+		return nil, fmt.Errorf("market creation failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	mir, err := parseResponse(resp, marketIdResponse{})
@@ -533,7 +532,7 @@ func (mc *Client) AddLiquidity(marketId string, amount int64) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("liquidity addition failed with status %d", resp.StatusCode)
+		return fmt.Errorf("liquidity addition failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -577,7 +576,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("market closure failed with status %d", resp.StatusCode)
+		return fmt.Errorf("market closure failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -616,7 +615,7 @@ func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("adding market to group failed with status %d", resp.StatusCode)
+		return fmt.Errorf("adding market to group failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -657,7 +656,7 @@ func (mc *Client) ResolveMarket(marketId string, rmr ResolveMarketRequest) error
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("market resolution failed with status %d", resp.StatusCode)
+		return fmt.Errorf("market resolution failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -694,7 +693,7 @@ func (mc *Client) SellShares(marketId string, ssr SellSharesRequest) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("selling shares failed with status %d", resp.StatusCode)
+		return fmt.Errorf("selling shares failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
@@ -733,10 +732,22 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("posting comment failed with status %d", resp.StatusCode)
+		return fmt.Errorf("posting comment failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil
+}
+
+// readErrorBody reads up to 512 bytes from a response body for error reporting.
+func readErrorBody(resp *http.Response) string {
+	if resp.Body == nil {
+		return ""
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 512))
+	if err != nil || len(body) == 0 {
+		return ""
+	}
+	return string(body)
 }
 
 // parseResponse takes an HTTP response and a type and attempts to unmarshal
