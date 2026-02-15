@@ -47,7 +47,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 
 	b, s := equalUsers(*result, expected)
 	if !b {
-		t.Errorf(s)
+		t.Error(s)
 		t.Fail()
 	}
 }
@@ -110,7 +110,7 @@ func TestGetMarketPositions(t *testing.T) {
 	for i, contract := range *result {
 		b, s := equalContractMetrics(contract, expected[i])
 		if !b {
-			t.Errorf(s)
+			t.Error(s)
 		}
 	}
 }
@@ -170,7 +170,7 @@ func TestSearchMarkets(t *testing.T) {
 	for i, market := range *result {
 		b, s := equalFullMarkets(market, expected[i])
 		if !b {
-			t.Errorf(s)
+			t.Error(s)
 		}
 	}
 }

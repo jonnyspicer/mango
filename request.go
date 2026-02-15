@@ -33,7 +33,6 @@ const postManagram string = "managram/"
 
 const getUserPortfolio string = "get-user-portfolio/"
 const getUserPortfolioHistory string = "get-user-portfolio-history/"
-const getMarketProb string = "market/"
 const getMarketProbs string = "market-probs/"
 const getLeagues string = "leagues/"
 const getTxns string = "txns/"

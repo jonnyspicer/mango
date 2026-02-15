@@ -175,9 +175,9 @@ func getUsernames(t UsernameType, text string) []string {
 }
 
 // GetUsersOfType returns a slice of [User] and an error. It takes a UsernameType, which can be one of the following values:
-//	- Bot - representing users with the `Bot` tag
-//  - Core - representing Manifold employees
-//  - Check - representing Manifold users with the `Trustworthy. ish.` label.
+//   - Bot - representing users with the `Bot` tag
+//   - Core - representing Manifold employees
+//   - Check - representing Manifold users with the `Trustworthy. ish.` label.
 func (mc *Client) GetUsersOfType(t UsernameType) (*[]User, error) {
 	text, _ := scrapeConstants(manifoldConstantsUrl)
 
@@ -202,11 +202,12 @@ func (mc *Client) getLeaderboard() []leaderboardItem {
 // GetLeaders returns a slice of [LeadUser]. It takes a LeaderType, which can have one of the following values:
 //   - Trader - an item on the top traders leaderboard
 //   - Creator - an item on the top creators leaderboard
+//
 // And a LeaderPeriod, which can have one of the following values:
-//	 - Daily
-//	 - Weekly
-//	 - Monthly
-//	 - All
+//   - Daily
+//   - Weekly
+//   - Monthly
+//   - All
 func (mc *Client) GetLeaders(t LeaderType, p LeaderPeriod) *[]LeadUser {
 	leaders := mc.getLeaderboard()
 	var leadUsers []LeadUser

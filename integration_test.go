@@ -23,7 +23,7 @@ func testClient(t *testing.T) *Client {
 // Known stable IDs for integration tests.
 const (
 	testUsername = "Austin"
-	testUserId  = "igi2zGXsfxYPgB0DJTXVJVmwCOr2"
+	testUserId   = "igi2zGXsfxYPgB0DJTXVJVmwCOr2"
 )
 
 // --- Task 21: Read-only user integration tests ---
@@ -193,8 +193,8 @@ func TestIntegrationGetComments(t *testing.T) {
 func TestIntegrationGetTransactions(t *testing.T) {
 	mc := testClient(t)
 	txns, err := mc.GetTransactions(GetTransactionsRequest{
-		Limit:  5,
-		ToId:   testUserId,
+		Limit: 5,
+		ToId:  testUserId,
 	})
 	if err != nil {
 		t.Fatalf("error: %v", err)
