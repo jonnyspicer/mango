@@ -2,9 +2,9 @@ package mango
 
 // Fees represents the fees paid on a [Bet].
 type Fees struct {
-	LiquidityFee int64 `json:"liquidityFee"`
-	PlatformFee  int64 `json:"platformFee"`
-	CreatorFee   int64 `json:"creatorFee"`
+	LiquidityFee float64 `json:"liquidityFee"`
+	PlatformFee  float64 `json:"platformFee"`
+	CreatorFee   float64 `json:"creatorFee"`
 }
 
 // Fill represents the portion of a limit order that has been filled
