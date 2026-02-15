@@ -377,6 +377,26 @@ func (mc *Client) GetUsers(gur GetUsersRequest) (*[]User, error) {
 	return parseResponse(resp, []User{})
 }
 
+// GetUserLite returns a [DisplayUser] by username with only basic display fields.
+func (mc *Client) GetUserLite(username string) (*DisplayUser, error) {
+	resp, err := mc.getRequest(requestURL(mc.url, getUserByUsername, username, liteSuffix))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, DisplayUser{})
+}
+
+// GetUserByIDLite returns a [DisplayUser] by user ID with only basic display fields.
+func (mc *Client) GetUserByIDLite(id string) (*DisplayUser, error) {
+	resp, err := mc.getRequest(requestURL(mc.url, getUserByID, id, liteSuffix))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, DisplayUser{})
+}
+
 // PostBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
 //   - [PostBetRequest.Amount] - Required.
 //   - [PostBetRequest.ContractId] - Required.

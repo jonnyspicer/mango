@@ -684,6 +684,35 @@ func TestPostComment(t *testing.T) {
 	}
 }
 
+func TestGetUserLite(t *testing.T) {
+	expected := DisplayUser{
+		Id:        "abc123",
+		Name:      "Test User",
+		Username:  "testuser",
+		AvatarUrl: "https://example.com/avatar.png",
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetUserLite("testuser")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Id != expected.Id || result.Username != expected.Username {
+		t.Errorf("got %+v, want %+v", *result, expected)
+	}
+}
+
 func TestCloseMarketSendsBody(t *testing.T) {
 	var receivedBody []byte
 
@@ -730,5 +759,29 @@ func TestAddMarketToGroupSendsBody(t *testing.T) {
 
 	if string(receivedBody) == "{}" || string(receivedBody) == "null" {
 		t.Errorf("expected non-empty body with groupId, got: %s", receivedBody)
+	}
+}
+
+func TestGetMarketProb(t *testing.T) {
+	expected := MarketProb{Prob: 0.75}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetMarketProb("market123")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Prob != 0.75 {
+		t.Errorf("expected prob 0.75, got %f", result.Prob)
 	}
 }
