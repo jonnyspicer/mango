@@ -58,6 +58,7 @@ type PostMarketRequest struct {
 	IsLogScale          bool        `json:"isLogScale,omitempty"`
 	InitialVal          int64       `json:"initialValue,omitempty"`
 	Answers             []string    `json:"answers,omitempty"`
+	LiquidityTier       int64       `json:"liquidityTier,omitempty"`
 }
 
 // ResolveMarketRequest represents the parameters required to resolve a market via the API

@@ -838,7 +838,7 @@ func (mc *Client) PostComment(marketId string, pcr PostCommentRequest) error {
 
 	req, err := http.NewRequest(http.MethodPost, requestURL(
 		mc.url, postComment,
-		marketId,
+		"",
 		""), bodyReader)
 	if err != nil {
 		return fmt.Errorf("error creating http request: %v", err)
