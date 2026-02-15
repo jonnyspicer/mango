@@ -934,6 +934,109 @@ func (mc *Client) SendManagram(req SendManagramRequest) error {
 	return nil
 }
 
+// GetLeagues returns league standings data.
+func (mc *Client) GetLeagues(req GetLeaguesRequest) (*[]LeagueEntry, error) {
+	var season string
+	if req.Season > 0 {
+		season = strconv.Itoa(req.Season)
+	}
+
+	resp, err := mc.getRequest(requestURL(mc.url, getLeagues, "", "",
+		"userId", req.UserId,
+		"season", season,
+		"cohort", req.Cohort,
+	))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, []LeagueEntry{})
+}
+
+// PostAnswer adds a new answer to a multiple choice market.
+func (mc *Client) PostAnswer(marketId, text string) (*Answer, error) {
+	body := struct {
+		Text string `json:"text"`
+	}{text}
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling request body: %v", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, requestURL(
+		mc.url, postMarket, marketId, answerSuffix), bytes.NewReader(jsonBody))
+	if err != nil {
+		return nil, fmt.Errorf("error creating http request: %v", err)
+	}
+
+	resp, err := mc.doRequest(req)
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, Answer{})
+}
+
+// AddBounty adds mana to a bounty question.
+func (mc *Client) AddBounty(marketId string, amount int64) error {
+	body := struct {
+		Amount int64 `json:"amount"`
+	}{amount}
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error marshalling request body: %v", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, requestURL(
+		mc.url, postMarket, marketId, bountySuffix), bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("error creating http request: %v", err)
+	}
+
+	resp, err := mc.doRequest(req)
+	if err != nil {
+		return fmt.Errorf("error making http request: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("adding bounty failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
+	}
+
+	return nil
+}
+
+// AwardBounty distributes a bounty reward to a comment.
+func (mc *Client) AwardBounty(marketId string, amount int64, commentId string) error {
+	body := struct {
+		Amount    int64  `json:"amount"`
+		CommentId string `json:"commentId"`
+	}{amount, commentId}
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error marshalling request body: %v", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, requestURL(
+		mc.url, postMarket, marketId, awardBountySuffix), bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("error creating http request: %v", err)
+	}
+
+	resp, err := mc.doRequest(req)
+	if err != nil {
+		return fmt.Errorf("error making http request: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("awarding bounty failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
+	}
+
+	return nil
+}
+
 // readErrorBody reads up to 512 bytes from a response body for error reporting.
 func readErrorBody(resp *http.Response) string {
 	if resp.Body == nil {

@@ -996,3 +996,29 @@ func TestAwardBounty(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestGetLeagues(t *testing.T) {
+	expected := []LeagueEntry{
+		{UserId: "user1", Season: 1, Division: 3, ManaEarned: 500},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetLeagues(GetLeaguesRequest{UserId: "user1"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(*result) != 1 || (*result)[0].UserId != "user1" {
+		t.Errorf("unexpected result: %+v", result)
+	}
+}
