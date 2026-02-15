@@ -18,7 +18,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // TODO: POST doc comments need a note that they won't work without an API key
@@ -287,27 +286,34 @@ func (mc *Client) GetMarketPositions(gmpr GetMarketPositionsRequest) (*[]Contrac
 	return parseResponse(resp, []ContractMetric{})
 }
 
-// SearchMarkets returns a slice of [FullMarket] that are the results of searching for provided terms.
-// It can take any number of strings. Each string should be an individual search term.
-//
-// If there is an error making the request, then nil and an error
-// will be returned.
-//
-// See [the Manifold API docs for GET /v0/search-markets] for more details.
-//
-// [the Manifold API docs for GET /v0/search-markets]: https://docs.manifold.markets/api#get-v0search-markets
-func (mc *Client) SearchMarkets(terms ...string) (*[]FullMarket, error) {
-	ts := ""
-
-	for i, t := range terms {
-		ts += strings.TrimSpace(t)
-		if i+1 < len(terms) {
-			ts += " "
-		}
+// SearchMarkets returns a slice of [FullMarket] matching the search criteria.
+// It takes a [SearchMarketsRequest] with the following optional parameters:
+//   - Term - search text
+//   - Sort - one of "score", "newest", "liquidity", etc.
+//   - Filter - one of "all", "open", "closed", "resolved"
+//   - ContractType - one of "ALL", "BINARY", "MULTIPLE_CHOICE", etc.
+//   - TopicSlug - filter by topic
+//   - CreatorId - filter by market creator
+//   - Limit - max results (default 100)
+//   - Offset - pagination offset
+func (mc *Client) SearchMarkets(req SearchMarketsRequest) (*[]FullMarket, error) {
+	var limit, offset string
+	if req.Limit > 0 {
+		limit = strconv.FormatInt(req.Limit, 10)
+	}
+	if req.Offset > 0 {
+		offset = strconv.FormatInt(req.Offset, 10)
 	}
 
 	resp, err := mc.getRequest(requestURL(mc.url, getSearchMarkets, "", "",
-		"terms", ts,
+		"term", req.Term,
+		"sort", req.Sort,
+		"filter", req.Filter,
+		"contractType", req.ContractType,
+		"topicSlug", req.TopicSlug,
+		"creatorId", req.CreatorId,
+		"limit", limit,
+		"offset", offset,
 	))
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %v", err)

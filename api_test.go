@@ -458,7 +458,7 @@ func TestSearchMarkets(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, nil)
 	defer mc.Destroy()
 
-	result, err := mc.SearchMarkets("apple", "banana", "celery", "damson")
+	result, err := mc.SearchMarkets(SearchMarketsRequest{Term: "apple banana celery damson"})
 	if err != nil {
 		t.Errorf("error searching markets: %v", err)
 		t.Fail()
