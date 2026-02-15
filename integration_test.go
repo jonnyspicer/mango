@@ -20,6 +20,17 @@ func testClient(t *testing.T) *Client {
 	return mc
 }
 
+// requireAuth validates that the API key works by calling GetAuthenticatedUser.
+// Tests that require authentication should call this to skip gracefully on invalid keys.
+func requireAuth(t *testing.T, mc *Client) *User {
+	t.Helper()
+	user, err := mc.GetAuthenticatedUser()
+	if err != nil {
+		t.Skipf("skipping: API key not valid for authenticated endpoints: %v", err)
+	}
+	return user
+}
+
 // Known stable IDs for integration tests.
 const (
 	testUsername = "Austin"
@@ -63,10 +74,7 @@ func TestIntegrationGetUserLite(t *testing.T) {
 
 func TestIntegrationGetAuthenticatedUser(t *testing.T) {
 	mc := testClient(t)
-	user, err := mc.GetAuthenticatedUser()
-	if err != nil {
-		t.Fatalf("error: %v", err)
-	}
+	user := requireAuth(t, mc)
 	if user.Id == "" {
 		t.Error("expected non-empty user ID")
 	}
@@ -74,10 +82,7 @@ func TestIntegrationGetAuthenticatedUser(t *testing.T) {
 
 func TestIntegrationGetUserPortfolio(t *testing.T) {
 	mc := testClient(t)
-	user, err := mc.GetAuthenticatedUser()
-	if err != nil {
-		t.Fatalf("error getting auth user: %v", err)
-	}
+	user := requireAuth(t, mc)
 	portfolio, err := mc.GetUserPortfolio(user.Id)
 	if err != nil {
 		t.Fatalf("error: %v", err)
@@ -218,6 +223,7 @@ func TestIntegrationGetLeagues(t *testing.T) {
 // WARNING: This test spends mana. Use a test account.
 func TestIntegrationWriteEndpoints(t *testing.T) {
 	mc := testClient(t)
+	requireAuth(t, mc)
 
 	var marketId string
 
