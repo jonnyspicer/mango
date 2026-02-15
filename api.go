@@ -458,6 +458,37 @@ func (mc *Client) GetUserPortfolioHistory(userId string, period PortfolioPeriod)
 	return parseResponse(resp, []PortfolioMetrics{})
 }
 
+// GetUserContractMetricsWithContracts returns a user's contract metrics alongside the contracts.
+func (mc *Client) GetUserContractMetricsWithContracts(req GetUserContractMetricsRequest) (*UserContractMetricsResponse, error) {
+	if req.UserId == "" {
+		return nil, fmt.Errorf("userId is required")
+	}
+	if req.Limit == 0 {
+		req.Limit = defaultLimit
+	}
+
+	var offset, perAnswer string
+	if req.Offset > 0 {
+		offset = strconv.FormatInt(req.Offset, 10)
+	}
+	if req.PerAnswer {
+		perAnswer = "true"
+	}
+
+	resp, err := mc.getRequest(requestURL(mc.url, getUserContractMetrics, "", "",
+		"userId", req.UserId,
+		"limit", strconv.FormatInt(req.Limit, 10),
+		"offset", offset,
+		"order", req.Order,
+		"perAnswer", perAnswer,
+	))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, UserContractMetricsResponse{})
+}
+
 // PostBet makes a new bet on a market. It takes a [PostBetRequest] which has the following parameters:
 //   - [PostBetRequest.Amount] - Required.
 //   - [PostBetRequest.ContractId] - Required.
@@ -839,6 +870,65 @@ func (mc *Client) PostMultiBet(req PostMultiBetRequest) error {
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("multi-bet placement failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
+	}
+
+	return nil
+}
+
+// GetTransactions returns a slice of [Txn] matching the given filters.
+func (mc *Client) GetTransactions(req GetTransactionsRequest) (*[]Txn, error) {
+	if req.Limit == 0 {
+		req.Limit = 100
+	}
+
+	var before, after, offset string
+	if req.Before > 0 {
+		before = strconv.FormatInt(req.Before, 10)
+	}
+	if req.After > 0 {
+		after = strconv.FormatInt(req.After, 10)
+	}
+	if req.Offset > 0 {
+		offset = strconv.FormatInt(req.Offset, 10)
+	}
+
+	resp, err := mc.getRequest(requestURL(mc.url, getTxns, "", "",
+		"token", req.Token,
+		"offset", offset,
+		"limit", strconv.FormatInt(req.Limit, 10),
+		"before", before,
+		"after", after,
+		"toId", req.ToId,
+		"fromId", req.FromId,
+		"category", req.Category,
+	))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request: %v", err)
+	}
+
+	return parseResponse(resp, []Txn{})
+}
+
+// SendManagram sends mana to one or more users. Minimum amount is 10.
+func (mc *Client) SendManagram(req SendManagramRequest) error {
+	jsonBody, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("error marshalling request body: %v", err)
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPost, requestURL(
+		mc.url, postManagram, "", ""), bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("error creating http request: %v", err)
+	}
+
+	resp, err := mc.doRequest(httpReq)
+	if err != nil {
+		return fmt.Errorf("error making http request: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("sending managram failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
 	}
 
 	return nil

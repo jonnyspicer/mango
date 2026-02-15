@@ -72,7 +72,12 @@ func TestGetBets(t *testing.T) {
 
 	for _, test := range tests {
 		gbr := GetBetsRequest{
-			test.ui, test.un, test.ci, test.cs, test.b, test.l,
+			UserId:       test.ui,
+			Username:     test.un,
+			ContractId:   test.ci,
+			ContractSlug: test.cs,
+			Before:       test.b,
+			Limit:        test.l,
 		}
 		actual, err := mc.GetBets(gbr)
 		if err != nil {
@@ -840,5 +845,154 @@ func TestGetUserPortfolio(t *testing.T) {
 
 	if result.UserId != expected.UserId || result.Balance != expected.Balance {
 		t.Errorf("got %+v, want %+v", *result, expected)
+	}
+}
+
+func TestGetTransactions(t *testing.T) {
+	expected := []Txn{
+		{Id: "txn1", Amount: 100, Category: "MANA_PAYMENT"},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetTransactions(GetTransactionsRequest{Limit: 10})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(*result) != 1 || (*result)[0].Id != "txn1" {
+		t.Errorf("unexpected result: %+v", result)
+	}
+}
+
+func TestSendManagram(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		var parsed SendManagramRequest
+		json.Unmarshal(body, &parsed)
+		if parsed.Amount != 10 || len(parsed.ToIds) != 1 {
+			t.Errorf("unexpected request body: %+v", parsed)
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.SendManagram(SendManagramRequest{
+		ToIds:   []string{"user123"},
+		Amount:  10,
+		Message: "Test managram",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestGetUserContractMetricsWithContracts(t *testing.T) {
+	expected := UserContractMetricsResponse{
+		MetricsByContract: map[string][]ContractMetric{
+			"contract1": {{ContractId: "contract1", Profit: 100.0}},
+		},
+		Contracts: []FullMarket{{Id: "contract1", Question: "Test?"}},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.GetUserContractMetricsWithContracts(GetUserContractMetricsRequest{
+		UserId: "user1",
+		Limit:  10,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result.Contracts) != 1 {
+		t.Errorf("expected 1 contract, got %d", len(result.Contracts))
+	}
+}
+
+func TestPostAnswer(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		var parsed map[string]string
+		json.Unmarshal(body, &parsed)
+		if parsed["text"] != "New answer" {
+			t.Errorf("expected text 'New answer', got '%s'", parsed["text"])
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(Answer{Id: "ans123", Text: "New answer"})
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	result, err := mc.PostAnswer("market123", "New answer")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Id != "ans123" {
+		t.Errorf("expected answer ID 'ans123', got '%s'", result.Id)
+	}
+}
+
+func TestAddBounty(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{"id": "txn123"})
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.AddBounty("market123", 100)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestAwardBounty(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{"id": "txn456"})
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.AwardBounty("market123", 50, "comment456")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
