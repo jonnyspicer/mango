@@ -2,6 +2,7 @@ package mango
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -680,5 +681,54 @@ func TestPostComment(t *testing.T) {
 	if err != nil {
 		t.Errorf("error posting comment: %v", err)
 		t.Fail()
+	}
+}
+
+func TestCloseMarketSendsBody(t *testing.T) {
+	var receivedBody []byte
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedBody, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	ct := int64(1704067199000)
+	err := mc.CloseMarket("123", &ct)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if string(receivedBody) == "{}" || string(receivedBody) == "null" {
+		t.Errorf("expected non-empty body with closeTime, got: %s", receivedBody)
+	}
+}
+
+func TestAddMarketToGroupSendsBody(t *testing.T) {
+	var receivedBody []byte
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedBody, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, nil)
+	defer mc.Destroy()
+
+	err := mc.AddMarketToGroup("123marketid", "456groupid")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if string(receivedBody) == "{}" || string(receivedBody) == "null" {
+		t.Errorf("expected non-empty body with groupId, got: %s", receivedBody)
 	}
 }

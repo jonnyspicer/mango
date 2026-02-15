@@ -558,7 +558,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 	}
 
 	c := struct {
-		closeTime int64 `json:"closeTime,omitempty"`
+		CloseTime int64 `json:"closeTime,omitempty"`
 	}{*ct}
 
 	jsonBody, err := json.Marshal(c)
@@ -597,7 +597,7 @@ func (mc *Client) CloseMarket(marketId string, ct *int64) error {
 // [the Manifold API docs for POST /v0/market/marketId/group]: https://docs.manifold.markets/api#post-v0marketmarketidgroup
 func (mc *Client) AddMarketToGroup(marketId, gi string) error {
 	g := struct {
-		groupId string `json:"groupId,omitempty"`
+		GroupId string `json:"groupId,omitempty"`
 	}{gi}
 
 	jsonBody, err := json.Marshal(g)
