@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+var testKey = "test-api-key"
+
 func TestGetAuthenticatedUser(t *testing.T) {
 	expected := User{
 		Id:            "igi2zGXsfxYPgB0DJTXVJVmwCOr2",
@@ -34,7 +36,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetAuthenticatedUser()
@@ -92,7 +94,7 @@ func TestGetMarketPositions(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetMarketPositions(GetMarketPositionsRequest{"1", "desc", 0, 100, "user1"})
@@ -152,7 +154,7 @@ func TestSearchMarkets(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.SearchMarkets(SearchMarketsRequest{Term: "apple banana celery damson"})
@@ -187,7 +189,7 @@ func TestPostBet(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.PostBet(pbr)
@@ -205,7 +207,7 @@ func TestCancelBet(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.CancelBet("123abc")
@@ -244,7 +246,7 @@ func TestCreateMarket(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	resp, err := mc.CreateMarket(pmr)
@@ -267,7 +269,7 @@ func TestAddLiquidity(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.AddLiquidity("123marketid", 9999)
@@ -285,7 +287,7 @@ func TestCloseMarket(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.CloseMarket("123marketid", nil)
@@ -303,7 +305,7 @@ func TestAddMarketToGroup(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.AddMarketToGroup("123marketid", "123groupid")
@@ -328,7 +330,7 @@ func TestResolveMarket(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.ResolveMarket("123marketid", rmr)
@@ -351,7 +353,7 @@ func TestSellShares(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.SellShares("123marketid", ssr)
@@ -376,7 +378,7 @@ func TestPostComment(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.PostComment("123marketid", pcr)
@@ -402,7 +404,7 @@ func TestGetUserLite(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetUserLite("testuser")
@@ -426,7 +428,7 @@ func TestCloseMarketSendsBody(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	ct := int64(1704067199000)
@@ -451,7 +453,7 @@ func TestAddMarketToGroupSendsBody(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.AddMarketToGroup("123marketid", "456groupid")
@@ -476,7 +478,7 @@ func TestPostMultiBet(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.PostMultiBet(PostMultiBetRequest{
@@ -500,7 +502,7 @@ func TestGetMarketProb(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetMarketProb("market123")
@@ -532,7 +534,7 @@ func TestGetUserPortfolio(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetUserPortfolio("user123")
@@ -558,7 +560,7 @@ func TestGetTransactions(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetTransactions(GetTransactionsRequest{Limit: 10})
@@ -585,7 +587,7 @@ func TestSendManagram(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.SendManagram(SendManagramRequest{
@@ -614,7 +616,7 @@ func TestGetUserContractMetricsWithContracts(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetUserContractMetricsWithContracts(GetUserContractMetricsRequest{
@@ -645,7 +647,7 @@ func TestPostAnswer(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.PostAnswer("market123", "New answer")
@@ -667,7 +669,7 @@ func TestAddBounty(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.AddBounty("market123", 100)
@@ -685,7 +687,7 @@ func TestAwardBounty(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	err := mc.AwardBounty("market123", 50, "comment456")
@@ -707,7 +709,7 @@ func TestGetLeagues(t *testing.T) {
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
-	mc := ClientInstance(server.Client(), &server.URL, nil)
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
 	result, err := mc.GetLeagues(GetLeaguesRequest{UserId: "user1"})
