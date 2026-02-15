@@ -18,30 +18,8 @@ const (
 )
 
 // Pool represents the potential outcomes for a market.
-type Pool struct {
-	No       float64 `json:"NO,omitempty"`
-	Yes      float64 `json:"YES,omitempty"`
-	Option0  float64 `json:"0,omitempty"`
-	Option1  float64 `json:"1,omitempty"`
-	Option2  float64 `json:"2,omitempty"`
-	Option3  float64 `json:"3,omitempty"`
-	Option4  float64 `json:"4,omitempty"`
-	Option5  float64 `json:"5,omitempty"`
-	Option6  float64 `json:"6,omitempty"`
-	Option7  float64 `json:"7,omitempty"`
-	Option8  float64 `json:"8,omitempty"`
-	Option9  float64 `json:"9,omitempty"`
-	Option10 float64 `json:"10,omitempty"`
-	Option11 float64 `json:"11,omitempty"`
-	Option12 float64 `json:"12,omitempty"`
-	Option13 float64 `json:"13,omitempty"`
-	Option14 float64 `json:"14,omitempty"`
-	Option15 float64 `json:"15,omitempty"`
-	Option16 float64 `json:"16,omitempty"`
-	Option17 float64 `json:"17,omitempty"`
-	Option18 float64 `json:"18,omitempty"`
-	Option19 float64 `json:"19,omitempty"`
-}
+// Keys are outcome names like "YES", "NO", or answer indices like "0", "1", etc.
+type Pool map[string]float64
 
 // Answer represents a potential answer on a free response market
 type Answer struct {
@@ -80,6 +58,7 @@ type PostMarketRequest struct {
 	IsLogScale          bool        `json:"isLogScale,omitempty"`
 	InitialVal          int64       `json:"initialValue,omitempty"`
 	Answers             []string    `json:"answers,omitempty"`
+	LiquidityTier       int64       `json:"liquidityTier,omitempty"`
 }
 
 // ResolveMarketRequest represents the parameters required to resolve a market via the API
@@ -180,6 +159,24 @@ type FullMarket struct {
 	// Description field returns HTML marshalled to JSON, see https://tiptap.dev/guide/output#option-1-json
 	// Description     string `json:"description"` TODO: work out how to parse this field
 	TextDescription string `json:"textDescription"`
+}
+
+// MarketProb represents the probability/probabilities for a market.
+type MarketProb struct {
+	Prob        float64            `json:"prob,omitempty"`
+	AnswerProbs map[string]float64 `json:"answerProbs,omitempty"`
+}
+
+// SearchMarketsRequest represents the parameters for searching markets.
+type SearchMarketsRequest struct {
+	Term         string `json:"term,omitempty"`
+	Sort         string `json:"sort,omitempty"`
+	Filter       string `json:"filter,omitempty"`
+	ContractType string `json:"contractType,omitempty"`
+	TopicSlug    string `json:"topicSlug,omitempty"`
+	CreatorId    string `json:"creatorId,omitempty"`
+	Limit        int64  `json:"limit,omitempty"`
+	Offset       int64  `json:"offset,omitempty"`
 }
 
 func equalFullMarkets(m1, m2 FullMarket) (bool, string) {

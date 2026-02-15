@@ -37,6 +37,16 @@ type User struct {
 	DiscordHandle string       `json:"discordHandle,omitempty"`
 }
 
+// DisplayUser represents a lightweight user object with only display information.
+//
+// Returned by the /lite user endpoints.
+type DisplayUser struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Username  string `json:"username"`
+	AvatarUrl string `json:"avatarUrl,omitempty"`
+}
+
 func equalUsers(u1, u2 User) (bool, string) {
 	if u1.Id != u2.Id {
 		return false, fmt.Sprintf("user id is not equal: %v & %v", u1.Id, u2.Id)

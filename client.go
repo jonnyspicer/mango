@@ -86,7 +86,7 @@ func apiKey() string {
 
 	err := v.ReadInConfig() // Find and read the config file
 	if err != nil {         // Handle errors reading the config file
-		fmt.Errorf("fatal error config file: %w", err)
+		fmt.Printf("error reading config file: %v\n", err)
 	}
 
 	if mak := v.GetString("MANIFOLD_API_KEY"); mak != "" {
