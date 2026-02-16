@@ -66,8 +66,13 @@ func KellyBet(prob, payout float64) float64 {
 		return 0.0
 	}
 
+	// Guard against invalid payout (division by zero or negative net odds)
+	if payout <= 1 {
+		return 0.0
+	}
+
 	// Compute the Kelly bet using the formula: f* = p - ((1-p) / b)
-	k := prob - ((1 - prob) / (payout / 2))
+	k := prob - ((1 - prob) / (payout - 1))
 
 	// Round the Kelly bet to 2 decimal places
 	k = math.Round(k*100) / 100

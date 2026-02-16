@@ -3,14 +3,27 @@ package mango
 import "testing"
 
 func TestKellyBet(t *testing.T) {
-	prob := 0.6
-	payout := 2.0
-	expected := 0.2
+	tests := []struct {
+		name     string
+		prob     float64
+		payout   float64
+		expected float64
+	}{
+		{"standard case", 0.6, 2.0, 0.2},
+		{"higher prob and payout", 0.7, 3.0, 0.55},
+		{"low payout margin", 0.55, 1.5, -0.35},
+		{"break even", 0.5, 2.0, 0.0},
+		{"zero net odds", 0.5, 1.0, 0.0},
+		{"payout less than 1", 0.5, 0.5, 0.0},
+	}
 
-	result := KellyBet(prob, payout)
-
-	if result != expected {
-		t.Errorf("Expected %f, but got %f", expected, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := KellyBet(tt.prob, tt.payout)
+			if result != tt.expected {
+				t.Errorf("KellyBet(%v, %v) = %v, want %v", tt.prob, tt.payout, result, tt.expected)
+			}
+		})
 	}
 }
 
