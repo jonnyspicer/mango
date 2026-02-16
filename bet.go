@@ -22,6 +22,7 @@ type PostBetRequest struct {
 	ContractId string   `json:"contractId"`
 	Outcome    string   `json:"outcome"`
 	LimitProb  *float64 `json:"limitProb,omitempty"`
+	AnswerId   string   `json:"answerId,omitempty"`
 }
 
 // GetBetsRequest represents the optional parameters that can be supplied to
