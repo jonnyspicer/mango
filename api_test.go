@@ -176,14 +176,20 @@ func TestSearchMarkets(t *testing.T) {
 }
 
 func TestPostBet(t *testing.T) {
-	pbr := PostBetRequest{
+	expected := Bet{
+		Id:         "bet123",
 		Amount:     10,
 		ContractId: "abc123",
 		Outcome:    "YES",
+		Shares:     15.5,
+		ProbBefore: 0.50,
+		ProbAfter:  0.55,
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
 	})
 
 	server := httptest.NewServer(handler)
@@ -192,10 +198,23 @@ func TestPostBet(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
-	err := mc.PostBet(pbr)
+	result, err := mc.PostBet(PostBetRequest{
+		Amount:     10,
+		ContractId: "abc123",
+		Outcome:    "YES",
+	})
 	if err != nil {
-		t.Errorf("error posting bet: %v", err)
-		t.Fail()
+		t.Fatalf("error posting bet: %v", err)
+	}
+
+	if result.Id != expected.Id {
+		t.Errorf("expected bet ID %s, got %s", expected.Id, result.Id)
+	}
+	if result.Shares != expected.Shares {
+		t.Errorf("expected shares %f, got %f", expected.Shares, result.Shares)
+	}
+	if result.ProbAfter != expected.ProbAfter {
+		t.Errorf("expected probAfter %f, got %f", expected.ProbAfter, result.ProbAfter)
 	}
 }
 

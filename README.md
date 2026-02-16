@@ -88,8 +88,9 @@ pbr := mango.PostBetRequest{
     Outcome:    "YES",
 }
 
-err := mc.PostBet(pbr)
+bet, err := mc.PostBet(pbr)
 if err != nil {
     fmt.Printf("error posting bet: %v", err)
 }
+fmt.Printf("placed bet %s, shares: %f", bet.Id, bet.Shares)
 ```

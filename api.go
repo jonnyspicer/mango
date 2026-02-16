@@ -501,15 +501,16 @@ func (mc *Client) GetUserContractMetricsWithContracts(req GetUserContractMetrics
 //   - [PostBetRequest.Outcome] - Required.
 //   - [PostBetRequest.LimitProb] - Optional. A number between 0.001 and 0.999 inclusive representing the limit probability for your bet
 //
-// If there is an error making the request, then an error will be returned.
+// On success, it returns the [Bet] object created by the API, which includes the bet ID,
+// shares purchased, probability impact, and fill details for limit orders.
 //
 // See [the Manifold API docs for POST /v0/bet] for more details.
 //
 // [the Manifold API docs for POST /v0/bet]: https://docs.manifold.markets/api#post-v0bet
-func (mc *Client) PostBet(pbr PostBetRequest) error {
+func (mc *Client) PostBet(pbr PostBetRequest) (*Bet, error) {
 	jsonBody, err := json.Marshal(pbr)
 	if err != nil {
-		return fmt.Errorf("error making http request: %v", err)
+		return nil, fmt.Errorf("error making http request: %v", err)
 	}
 
 	bodyReader := bytes.NewReader(jsonBody)
@@ -519,19 +520,15 @@ func (mc *Client) PostBet(pbr PostBetRequest) error {
 		"",
 		""), bodyReader)
 	if err != nil {
-		return fmt.Errorf("error creating http request: %v", err)
+		return nil, fmt.Errorf("error creating http request: %v", err)
 	}
 
 	resp, err := mc.doRequest(req)
 	if err != nil {
-		return fmt.Errorf("client: error making http request: %v", err)
+		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bet placement failed with status %d: %s", resp.StatusCode, readErrorBody(resp))
-	}
-
-	return nil
+	return parseResponse(resp, Bet{})
 }
 
 // CancelBet cancels an existing limit order for the given betId.
