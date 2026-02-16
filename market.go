@@ -32,7 +32,11 @@ type Answer struct {
 	Number      int64   `json:"number"`
 	ContractId  string  `json:"contractId"`
 	Text        string  `json:"text"`
-	Probability float64 `json:"probability"`
+	Probability           float64 `json:"probability"`
+	Resolution            string  `json:"resolution,omitempty"`
+	ResolutionTime        int64   `json:"resolutionTime,omitempty"`
+	ResolutionProbability float64 `json:"resolutionProbability,omitempty"`
+	ResolverId            string  `json:"resolverId,omitempty"`
 }
 
 // GetMarketsRequest represents the optional parameters that can be supplied to

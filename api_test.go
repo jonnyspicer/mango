@@ -754,6 +754,159 @@ func TestAwardBounty(t *testing.T) {
 	}
 }
 
+func TestAnswerResolutionFields(t *testing.T) {
+	t.Run("with resolution fields", func(t *testing.T) {
+		data := `{
+			"id": "ans1",
+			"username": "testuser",
+			"name": "Test User",
+			"userId": "user1",
+			"createdTime": 1700000000000,
+			"avatarUrl": "https://example.com/avatar.png",
+			"number": 1,
+			"contractId": "contract1",
+			"text": "Answer text",
+			"probability": 0.5,
+			"resolution": "CANCEL",
+			"resolutionTime": 1700763039000,
+			"resolutionProbability": 0.764,
+			"resolverId": "abc123"
+		}`
+
+		var answer Answer
+		if err := json.Unmarshal([]byte(data), &answer); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		if answer.Resolution != "CANCEL" {
+			t.Errorf("expected resolution 'CANCEL', got '%s'", answer.Resolution)
+		}
+		if answer.ResolutionTime != 1700763039000 {
+			t.Errorf("expected resolutionTime 1700763039000, got %d", answer.ResolutionTime)
+		}
+		if answer.ResolutionProbability != 0.764 {
+			t.Errorf("expected resolutionProbability 0.764, got %f", answer.ResolutionProbability)
+		}
+		if answer.ResolverId != "abc123" {
+			t.Errorf("expected resolverId 'abc123', got '%s'", answer.ResolverId)
+		}
+	})
+
+	t.Run("without resolution fields", func(t *testing.T) {
+		data := `{
+			"id": "ans2",
+			"username": "testuser",
+			"name": "Test User",
+			"userId": "user1",
+			"createdTime": 1700000000000,
+			"avatarUrl": "https://example.com/avatar.png",
+			"number": 2,
+			"contractId": "contract1",
+			"text": "Unresolved answer",
+			"probability": 0.3
+		}`
+
+		var answer Answer
+		if err := json.Unmarshal([]byte(data), &answer); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		if answer.Resolution != "" {
+			t.Errorf("expected empty resolution, got '%s'", answer.Resolution)
+		}
+		if answer.ResolutionTime != 0 {
+			t.Errorf("expected zero resolutionTime, got %d", answer.ResolutionTime)
+		}
+		if answer.ResolutionProbability != 0 {
+			t.Errorf("expected zero resolutionProbability, got %f", answer.ResolutionProbability)
+		}
+		if answer.ResolverId != "" {
+			t.Errorf("expected empty resolverId, got '%s'", answer.ResolverId)
+		}
+	})
+}
+
+func TestFullMarketWithResolvedAnswers(t *testing.T) {
+	expected := FullMarket{
+		Id:          "market1",
+		Question:    "Multi-choice market?",
+		OutcomeType: MultipleChoice,
+		Mechanism:   "cpmm-multi-1",
+		Answers: []Answer{
+			{
+				Id:                    "ans1",
+				Username:              "resolver",
+				Name:                  "Resolver User",
+				UserId:                "resolver1",
+				CreatedTime:           1700000000000,
+				AvatarUrl:             "https://example.com/avatar.png",
+				Number:                1,
+				ContractId:            "market1",
+				Text:                  "Option A",
+				Probability:           0.0,
+				Resolution:            "YES",
+				ResolutionTime:        1700763039000,
+				ResolutionProbability: 1.0,
+				ResolverId:            "resolver1",
+			},
+			{
+				Id:          "ans2",
+				Username:    "resolver",
+				Name:        "Resolver User",
+				UserId:      "resolver1",
+				CreatedTime: 1700000000000,
+				AvatarUrl:   "https://example.com/avatar.png",
+				Number:      2,
+				ContractId:  "market1",
+				Text:        "Option B",
+				Probability: 0.5,
+			},
+		},
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(expected)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
+	defer mc.Destroy()
+
+	result, err := mc.GetMarketByID("market1")
+	if err != nil {
+		t.Fatalf("error getting market: %v", err)
+	}
+
+	if len(result.Answers) != 2 {
+		t.Fatalf("expected 2 answers, got %d", len(result.Answers))
+	}
+
+	resolved := result.Answers[0]
+	if resolved.Resolution != "YES" {
+		t.Errorf("expected resolution 'YES', got '%s'", resolved.Resolution)
+	}
+	if resolved.ResolutionTime != 1700763039000 {
+		t.Errorf("expected resolutionTime 1700763039000, got %d", resolved.ResolutionTime)
+	}
+	if resolved.ResolutionProbability != 1.0 {
+		t.Errorf("expected resolutionProbability 1.0, got %f", resolved.ResolutionProbability)
+	}
+	if resolved.ResolverId != "resolver1" {
+		t.Errorf("expected resolverId 'resolver1', got '%s'", resolved.ResolverId)
+	}
+
+	unresolved := result.Answers[1]
+	if unresolved.Resolution != "" {
+		t.Errorf("expected empty resolution on unresolved answer, got '%s'", unresolved.Resolution)
+	}
+	if unresolved.ResolutionTime != 0 {
+		t.Errorf("expected zero resolutionTime on unresolved answer, got %d", unresolved.ResolutionTime)
+	}
+}
+
 func TestGetLeagues(t *testing.T) {
 	expected := []LeagueEntry{
 		{UserId: "user1", Season: 1, Division: 3, ManaEarned: 500},
