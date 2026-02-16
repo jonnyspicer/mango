@@ -176,14 +176,24 @@ func TestSearchMarkets(t *testing.T) {
 }
 
 func TestPostBet(t *testing.T) {
-	pbr := PostBetRequest{
-		Amount:     10,
-		ContractId: "abc123",
-		Outcome:    "YES",
-	}
+	// The POST /v0/bet endpoint returns "betId" rather than "id".
+	// PostBet normalizes this so callers can use bet.Id.
+	responseJSON := `{
+		"betId": "bet123",
+		"amount": 10,
+		"contractId": "abc123",
+		"outcome": "YES",
+		"shares": 15.5,
+		"probBefore": 0.50,
+		"probAfter": 0.55,
+		"isFilled": true,
+		"fees": {"creatorFee": 0, "platformFee": 0, "liquidityFee": 0}
+	}`
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(responseJSON))
 	})
 
 	server := httptest.NewServer(handler)
@@ -192,10 +202,23 @@ func TestPostBet(t *testing.T) {
 	mc := ClientInstance(server.Client(), &server.URL, &testKey)
 	defer mc.Destroy()
 
-	err := mc.PostBet(pbr)
+	result, err := mc.PostBet(PostBetRequest{
+		Amount:     10,
+		ContractId: "abc123",
+		Outcome:    "YES",
+	})
 	if err != nil {
-		t.Errorf("error posting bet: %v", err)
-		t.Fail()
+		t.Fatalf("error posting bet: %v", err)
+	}
+
+	if result.Id != "bet123" {
+		t.Errorf("expected bet.Id 'bet123' (normalized from betId), got %q", result.Id)
+	}
+	if result.Shares != 15.5 {
+		t.Errorf("expected shares 15.5, got %f", result.Shares)
+	}
+	if result.ProbAfter != 0.55 {
+		t.Errorf("expected probAfter 0.55, got %f", result.ProbAfter)
 	}
 }
 
@@ -204,7 +227,9 @@ func TestPostBetWithAnswerId(t *testing.T) {
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		receivedBody, _ = io.ReadAll(r.Body)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"betId":"test","outcome":"YES","fees":{}}`))
 	})
 
 	server := httptest.NewServer(handler)
@@ -221,7 +246,7 @@ func TestPostBetWithAnswerId(t *testing.T) {
 		AnswerId:   "answer456",
 	}
 
-	err := mc.PostBet(pbr)
+	_, err := mc.PostBet(pbr)
 	if err != nil {
 		t.Fatalf("error posting bet with answerId: %v", err)
 	}
@@ -242,7 +267,7 @@ func TestPostBetWithAnswerId(t *testing.T) {
 		Outcome:    "NO",
 	}
 
-	err = mc.PostBet(pbr2)
+	_, err = mc.PostBet(pbr2)
 	if err != nil {
 		t.Fatalf("error posting bet without answerId: %v", err)
 	}

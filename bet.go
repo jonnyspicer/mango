@@ -65,6 +65,7 @@ type Bet struct {
 	CreatedTime   int64   `json:"createdTime"`
 	UserAvatarUrl string  `json:"userAvatarUrl"`
 	Id            string  `json:"id"`
+	BetId         string  `json:"betId,omitempty"`
 	Amount        float64 `json:"amount"`
 	Fills         []Fill  `json:"fills,omitempty"`
 	Shares        float64 `json:"shares"`

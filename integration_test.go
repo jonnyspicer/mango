@@ -251,13 +251,19 @@ func TestIntegrationWriteEndpoints(t *testing.T) {
 	}
 
 	t.Run("PostBet", func(t *testing.T) {
-		err := mc.PostBet(PostBetRequest{
+		bet, err := mc.PostBet(PostBetRequest{
 			Amount:     1,
 			ContractId: marketId,
 			Outcome:    "YES",
 		})
 		if err != nil {
 			t.Fatalf("error posting bet: %v", err)
+		}
+		if bet.Id == "" {
+			t.Error("expected non-empty bet ID")
+		}
+		if bet.ContractId != marketId {
+			t.Errorf("expected contractId %s, got %s", marketId, bet.ContractId)
 		}
 	})
 
