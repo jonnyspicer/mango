@@ -528,7 +528,18 @@ func (mc *Client) PostBet(pbr PostBetRequest) (*Bet, error) {
 		return nil, fmt.Errorf("client: error making http request: %v", err)
 	}
 
-	return parseResponse(resp, Bet{})
+	bet, err := parseResponse(resp, Bet{})
+	if err != nil {
+		return nil, err
+	}
+
+	// The POST /v0/bet endpoint returns "betId" instead of "id".
+	// Normalize so callers can always use bet.Id.
+	if bet.Id == "" && bet.BetId != "" {
+		bet.Id = bet.BetId
+	}
+
+	return bet, nil
 }
 
 // CancelBet cancels an existing limit order for the given betId.

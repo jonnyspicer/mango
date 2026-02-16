@@ -176,20 +176,24 @@ func TestSearchMarkets(t *testing.T) {
 }
 
 func TestPostBet(t *testing.T) {
-	expected := Bet{
-		Id:         "bet123",
-		Amount:     10,
-		ContractId: "abc123",
-		Outcome:    "YES",
-		Shares:     15.5,
-		ProbBefore: 0.50,
-		ProbAfter:  0.55,
-	}
+	// The POST /v0/bet endpoint returns "betId" rather than "id".
+	// PostBet normalizes this so callers can use bet.Id.
+	responseJSON := `{
+		"betId": "bet123",
+		"amount": 10,
+		"contractId": "abc123",
+		"outcome": "YES",
+		"shares": 15.5,
+		"probBefore": 0.50,
+		"probAfter": 0.55,
+		"isFilled": true,
+		"fees": {"creatorFee": 0, "platformFee": 0, "liquidityFee": 0}
+	}`
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(expected)
+		w.Write([]byte(responseJSON))
 	})
 
 	server := httptest.NewServer(handler)
@@ -207,14 +211,14 @@ func TestPostBet(t *testing.T) {
 		t.Fatalf("error posting bet: %v", err)
 	}
 
-	if result.Id != expected.Id {
-		t.Errorf("expected bet ID %s, got %s", expected.Id, result.Id)
+	if result.Id != "bet123" {
+		t.Errorf("expected bet.Id 'bet123' (normalized from betId), got %q", result.Id)
 	}
-	if result.Shares != expected.Shares {
-		t.Errorf("expected shares %f, got %f", expected.Shares, result.Shares)
+	if result.Shares != 15.5 {
+		t.Errorf("expected shares 15.5, got %f", result.Shares)
 	}
-	if result.ProbAfter != expected.ProbAfter {
-		t.Errorf("expected probAfter %f, got %f", expected.ProbAfter, result.ProbAfter)
+	if result.ProbAfter != 0.55 {
+		t.Errorf("expected probAfter 0.55, got %f", result.ProbAfter)
 	}
 }
 
