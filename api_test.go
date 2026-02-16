@@ -199,6 +199,64 @@ func TestPostBet(t *testing.T) {
 	}
 }
 
+func TestPostBetWithAnswerId(t *testing.T) {
+	var receivedBody []byte
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedBody, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	mc := ClientInstance(server.Client(), &server.URL, &testKey)
+	defer mc.Destroy()
+
+	// Test with AnswerId set
+	pbr := PostBetRequest{
+		Amount:     10,
+		ContractId: "abc123",
+		Outcome:    "YES",
+		AnswerId:   "answer456",
+	}
+
+	err := mc.PostBet(pbr)
+	if err != nil {
+		t.Fatalf("error posting bet with answerId: %v", err)
+	}
+
+	var parsed map[string]interface{}
+	if err := json.Unmarshal(receivedBody, &parsed); err != nil {
+		t.Fatalf("error parsing request body: %v", err)
+	}
+
+	if parsed["answerId"] != "answer456" {
+		t.Errorf("expected answerId 'answer456', got '%v'", parsed["answerId"])
+	}
+
+	// Test with empty AnswerId (omitempty should exclude it)
+	pbr2 := PostBetRequest{
+		Amount:     20,
+		ContractId: "def789",
+		Outcome:    "NO",
+	}
+
+	err = mc.PostBet(pbr2)
+	if err != nil {
+		t.Fatalf("error posting bet without answerId: %v", err)
+	}
+
+	var parsed2 map[string]interface{}
+	if err := json.Unmarshal(receivedBody, &parsed2); err != nil {
+		t.Fatalf("error parsing request body: %v", err)
+	}
+
+	if _, exists := parsed2["answerId"]; exists {
+		t.Errorf("expected answerId to be omitted when empty, but it was present: %v", parsed2["answerId"])
+	}
+}
+
 func TestCancelBet(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
